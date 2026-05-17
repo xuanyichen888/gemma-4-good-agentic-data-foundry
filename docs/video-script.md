@@ -1,16 +1,21 @@
+---
+output:
+  pdf_document: default
+  html_document: default
+---
 # 视频拍摄脚本 & 讲解稿
 ## Agentic Data Foundry — Gemma 4 Good Hackathon
 
 > **总时长：3:00 分钟**  
-> **语言：英语（评委是国际评审）**  
-> **风格：清晰、有情感、有证据 — 不是产品广告，是一个解决真实问题的故事**
+> **语言：英语**  
+> **原则：只说可验证的事实 — 演示中出现的数据、代码、技术细节全部真实存在于仓库中**
 
 ---
 
 ## 拍摄前准备
 
-- 浏览器预先打开 `http://localhost:8501`
-- 侧边栏已加载，Judge Demo Mode 可见
+- 浏览器预先打开 `http://localhost:8501`，已完成 Judge Demo Mode
+- 另开一个标签页展示 GitHub 仓库（备用）
 - 屏幕分辨率 1280×800，字体放大到 110%
 - 关闭所有通知、消息弹窗
 - 录音环境安静，麦克风距离嘴部 20-30cm
@@ -21,171 +26,153 @@
 
 ---
 
-### 【段落 1：人物与问题】0:00 – 0:25
+### 【段落 1：真实问题】0:00 – 0:25
 
-**画面**：讲话人出镜（或幻灯片：一张社区中心工作人员的照片，或一个打开了三十个 Excel 标签的截图）
+**画面**：用文本编辑器或 Excel 打开 `examples/community_intake.csv`，让评委看到原始文件
 
 **稿子**：
 
-> "Meet Maria. She coordinates intake for a community resource center — helping families access food, housing, and health services.
+> "This is a CSV file — ten client intake records from a synthetic community resource center dataset. It has nine columns: client ID, intake date, ZIP code, primary need, household size, language, follow-up date, status, and notes.
 >
-> Every week, Maria opens four different spreadsheets, tries to remember which clients need follow-up, and wonders if she's missing anyone. Last month, a family was nearly evicted because their follow-up date was in a column that got accidentally deleted.
+> Look at row 8. Client C008 has an open housing case — but the follow-up date column is blank. There's no scheduled check-in. In a real intake system, this record would sit silently in a spreadsheet with no flag, no reminder, no alert.
 >
-> Maria's organization can't use cloud tools. Their data is sensitive — health records, housing status, family income. It has to stay local."
+> This is not a hypothetical. This is the actual file in our repository. And this is the problem we built Agentic Data Foundry to solve."
 
-**拍摄提示**：语速稍慢，"nearly evicted" 和 "has to stay local" 两句加重语气。
+**拍摄提示**：打开 CSV 文件，用鼠标或高亮指向第 8 行的空白 follow_up_date 单元格。语气平静、直接。
 
 ---
 
-### 【段落 2：展示产品 — 建库与发现风险】0:25 – 1:10
+### 【段落 2：建库 + Agent 1 & 2】0:25 – 1:10
 
-**画面**：切换到浏览器全屏，展示 App 首页
+**画面**：切换到 App，已通过 Judge Demo Mode 预加载所有结果
 
 **稿子**：
 
-> "This is Agentic Data Foundry. It uses four local Gemma 4 agents to transform Maria's messy CSV into a trusted, queryable database — without sending a single byte of client data to the cloud.
+> "Agentic Data Foundry takes that CSV and runs it through a pipeline of four local Gemma 4 agents — all inference happens on this machine, via Ollama. No data is sent to any external API.
 >
-> *(点击侧边栏 Judge Demo Mode 按钮)*
+> The database is built. Ten rows, nine columns, one data quality warning detected automatically.
 >
-> I'll hit 'Run Demo' — this builds the database, runs a complete analysis, and populates every agent's output in under ten seconds."
+> Agent 1 — the Schema Reviewer — reads the inferred column types and flags a real issue in this dataset:
+>
+> *(切换到 Build & Validate 标签，指向 Schema Review 输出)*
+>
+> ZIP code is stored as INTEGER. This CSV has ZIP codes like 90011 and 90037 — Los Angeles ZIP codes that happen to start with nine. But if any record had a ZIP starting with zero, the integer type would silently strip it. The agent flags this before it becomes a data integrity problem."
 
-**操作**：点击 "▶ Run 90-second Demo"，等页面刷新完成。
+**操作**：指向 Schema Review 输出第一条 bullet 中的 `zip_code` 提及处。
 
-> "The database is built. Ten client records, nine columns. And immediately — Agent 1, the Schema Reviewer, flags a critical issue:
+> "Agent 2 — the Validation Analyst — takes the missing follow_up_date warning and translates it from a column name into a service implication:
 >
-> *(指向 Build & Validate 标签 → Schema Reviewer 输出)*
+> *(指向 Validation Analyst 输出)*
 >
-> ZIP codes are stored as INTEGER. That silently strips leading zeros — ZIP 07102 becomes 7102. Geographic filtering would fail silently. This is exactly the kind of bug a data engineer catches on day one."
+> 'One open case has no scheduled check-in. A client with an open housing referral and no follow-up date may fall through without a system alert.'
+>
+> That's what staff need to read — not 'null count: 1'."
 
-**操作**：指向 Schema Review 输出框中的第一条 bullet。
-
-> "Agent 2, the Validation Analyst, explains the missing data in plain language — not as a column name, but as a service risk:
->
-> *(指向 Validation 输出)*
->
-> 'A single missed follow-up in a housing case can trigger eviction.' That's the sentence Maria needs to read. Not 'follow_up_date: 1 null value.'"
-
-**拍摄提示**：读引号里的话要慢，有停顿，让评委听清楚。
+**拍摄提示**：读 Gemma 输出时语速放慢，指向屏幕上对应文字。
 
 ---
 
-### 【段落 3：自然语言查询与 Provenance】1:10 – 1:55
+### 【段落 3：自然语言查询 + Safety + Provenance】1:10 – 1:55
 
-**画面**：切换到 Ask 标签
+**画面**：切换到 Ask 标签，问题已预填
 
 **稿子**：
 
-> "Now Maria wants to know: which clients need follow-up this week?
+> "Now — a staff member wants to know which clients need follow-up this week. They type that question in plain English.
 >
-> *(指向已预填的问题输入框)*
->
-> She doesn't write SQL. She asks in plain English. Agent 3 — the SQL Generator — translates that question into a safe SQLite SELECT query.
+> Agent 3 translates it into a SQLite SELECT query. But before that query touches the database, it goes through a safety validator with six rules:
 >
 > *(指向 SQL 代码块)*
 >
-> Notice the safety layer: this query went through six validation rules before execution. No INSERT, no DROP, no unknown table references. If Gemma had generated broken SQL, the system sends the error back to Gemma for automatic repair — up to two retries.
+> The query must start with SELECT. Forbidden keywords — DROP, DELETE, INSERT, UPDATE — are blocked at parse time. Only the imported table is accessible. No SQL comments. No multi-statements. And the SQLite connection itself is opened in read-only mode at the OS level — the model cannot modify the data even if it tried.
 >
-> And here are the results — three clients who need contact this week, ordered by urgency."
+> Here are the results: nine open cases, ordered by follow-up date. Client C008 — the one with the blank date — is not in this list. That's correct. And that's exactly why the Validation Analyst flagged it separately."
 
-**操作**：指向结果表格中的数据行。
+**操作**：指向结果表格，特别指出 C008 不在结果里。
 
 > "*(切换到 Evidence 标签)*
 >
-> Every single row in this result links back to a specific line in the original CSV file. Staff can verify any answer against the paper intake form. This is what we call row-level provenance — and it's what separates a trusted answer from a hallucinated one."
+> Every row in this result includes a provenance record: the source file path and the exact row number in the original CSV. Staff can verify any answer directly against the source file. This is row-level audit trail — not a summary, not an approximation."
 
-**操作**：指向 Evidence 表格中的 `source_file` 和 `source_row` 列。
-
-**拍摄提示**：这是技术差异化最强的点，语气要确定，不要快读。
+**操作**：指向 Evidence 表格中 `source_file` 和 `source_row` 列的具体值。
 
 ---
 
-### 【段落 4：架构与 Local-First 的意义】1:55 – 2:40
+### 【段落 4：架构 + 技术选择的真实原因】1:55 – 2:40
 
 **画面**：切换到 Architecture 标签
 
 **稿子**：
 
-> "*(指向 Architecture 标签)*
+> "Here's the full system.
 >
-> Here's the full system: four Gemma 4 agents, each with a distinct role and a controlled output budget. Schema Reviewer. Validation Analyst. SQL Generator with auto-repair. Answer Explainer.
+> *(指向 Architecture 标签的 agent 列表)*
 >
-> All inference runs via Ollama on the local machine. We set num_ctx to 2048 — reducing the KV-cache by sixty times compared to Gemma's 128K default. That's what makes local inference fast enough to be practical on a laptop.
+> Four agents. Each has a distinct prompt, a specific output contract, and a token budget. Schema Reviewer outputs up to 512 tokens. SQL Generator is capped at 150 — a SQL query doesn't need more. This is not arbitrary: smaller output budgets mean faster inference on local hardware.
 >
-> And critically: no data leaves the machine. No API call to OpenAI. No CSV uploaded to a cloud service. For an organization handling health records or housing data, that's not a nice-to-have — it's a requirement."
-
-**操作**：缓慢滚动 Architecture 标签，让评委看到 safety rules 列表。
-
-> "The safety validator runs on every query, regardless of whether it came from Gemma or the deterministic fallback. Six rules. Read-only SQLite connection at the OS level. The model literally cannot modify the database."
+> One specific technical decision worth explaining: we set num_ctx to 2048.
+>
+> Gemma 4's default context window is 128,000 tokens. Allocating that much KV-cache for a 400-token prompt wastes memory and slows every decode step. Our longest prompt — the answer summary with result rows and provenance — is under 600 tokens. Setting num_ctx to 2048 reduces KV-cache memory by roughly sixty times and makes local inference practical on a standard laptop.
+>
+> *(滚动到 Safety rules 区域)*
+>
+> The safety validator runs on every query — whether it came from Gemma or the deterministic fallback. If Gemma generates a query that fails validation, the error message is sent back to Gemma as context. It repairs its own output. Up to two retries."
 
 ---
 
-### 【段落 5：愿景结尾】2:40 – 3:00
+### 【段落 5：为什么 Local-First + 结尾】2:40 – 3:00
 
-**画面**：讲话人出镜，或切回首页英雄区
+**画面**：切换回首页，或讲话人出镜
 
 **稿子**：
 
-> "Maria doesn't need to wait for a data engineer to be hired. She doesn't need to send client records to a cloud API. She needs a system that's trustworthy, auditable, and works offline.
+> "Community organizations handling intake records — food assistance, housing referrals, health navigation — often cannot use cloud tools. Their data includes income information, immigration status, health conditions. Sending that to an external API is not a policy question. For many organizations, it's a legal barrier.
 >
-> Every small organization serving vulnerable populations deserves a data engineer. Agentic Data Foundry is that engineer — running locally, explaining itself, and leaving a paper trail for every answer.
+> Agentic Data Foundry runs entirely on-device. The inference, the database, the provenance table — nothing leaves the machine.
 >
-> Thank you."
+> The code is open. The prompts are readable. Every answer includes a source citation. That's what trustworthy AI looks like for the organizations that need it most."
 
-**拍摄提示**：最后一句"Thank you"前停顿一秒。整段保持平静、有力的语气，不要急。
+**拍摄提示**："nothing leaves the machine" 和 "every answer includes a source citation" 这两句停顿后再说。结尾不需要谢谢，直接停在最后一句。
 
 ---
 
 ## 时间轴对照表
 
-| 时间点 | 段落 | 关键操作 | 核心词 |
-|--------|------|----------|--------|
-| 0:00 | 问题 | 出镜/PPT | "nearly evicted", "has to stay local" |
-| 0:25 | 点 Demo | 点 Judge Demo 按钮 | "without sending a single byte" |
-| 0:45 | Schema Review | 指向 ZIP INTEGER 警告 | "silently strips leading zeros" |
-| 1:00 | Validation | 读出 bullet 原文 | "trigger eviction" |
-| 1:10 | Ask 查询 | 指向问题输入框和 SQL | "six validation rules" |
-| 1:35 | Provenance | 切换 Evidence 标签 | "row-level provenance" |
-| 1:55 | Architecture | 切换 Architecture 标签 | "sixty times", "no data leaves" |
-| 2:25 | Safety rules | 滚动展示规则列表 | "read-only at the OS level" |
-| 2:40 | 结尾 | 出镜 | "Every small organization deserves..." |
-| 2:58 | 结束 | 停顿 | "Thank you." |
+| 时间点 | 画面 | 核心信息 | 可验证依据 |
+|--------|------|----------|------------|
+| 0:00 | CSV 文件原文 | C008 的 follow_up_date 为空 | community_intake.csv 第 8 行 |
+| 0:25 | App 首页 | 4 个本地 Gemma 4 agent | llm.py, query.py |
+| 0:45 | Build 标签 | ZIP 存为 INTEGER 的风险 | Schema Reviewer 输出 |
+| 1:00 | Build 标签 | Validation Analyst 的服务风险描述 | Validation Analyst 输出 |
+| 1:10 | Ask 标签 | 6 条安全规则 | query.py `validate_sql()` |
+| 1:30 | Ask 标签 | C008 不在结果里，这是正确的 | 结果表格 |
+| 1:45 | Evidence 标签 | source_file + source_row | provenance 表格 |
+| 1:55 | Architecture 标签 | num_ctx=2048，减少 60 倍 KV-cache | llm.py `NUM_CTX = 2048` |
+| 2:20 | Architecture 标签 | Gemma 自修复 SQL | query.py repair loop |
+| 2:40 | 首页或出镜 | Local-only，无外部 API | Ollama 架构 |
 
 ---
 
-## 常见拍摄问题处理
+## 拍摄注意事项
 
-### Q: Gemma 太慢，演示时卡住怎么办？
-**A**：用 Judge Demo Mode。所有 Gemma 输出已预计算，0 等待时间。演示时说：*"The Gemma agents run locally — I've pre-loaded the output so we can see the full flow without waiting for inference."*
+**关于数据**：演示中出现的所有数据来自仓库内的 `examples/community_intake.csv`，是合成数据（synthetic），不包含真实个人信息，可以完整展示在视频中。
 
-### Q: 超时了怎么剪辑？
-**A**：可以剪辑掉 Gemma 运行中的 spinner 等待画面，直接跳到结果。说明：*"In a live run, Gemma takes 30-60 seconds to generate this analysis locally."*
+**关于技术数字**：
+- "60 times" — `128000 / 2048 ≈ 62.5`，代码中 `NUM_CTX = 2048`，可查
+- "six rules" — `query.py` 中 `validate_sql()` 函数，有 6 条检查
+- "up to two retries" — `query.py` 中 `max_repair=2`，可查
+- "150 tokens for SQL" — `llm.py` 中 `NUM_PREDICT_SQL = 150`，可查
 
-### Q: 需要字幕吗？
-**A**：建议加英文字幕（YouTube 自动字幕通常足够），有助于非母语英语的评委理解。
-
-### Q: 视频上传到哪里？
-**A**：YouTube（设置为公开或"不公开但有链接可访问"），获取链接后填入 Kaggle 提交页。
+**如果 Gemma 运行缓慢**：提前用 Judge Demo Mode 预加载结果，演示时说：*"I've pre-run the Gemma agents locally so we can see the full output without waiting for inference in real time."* — 这是真实的，不是作弊。
 
 ---
 
-## 备用开场白（如果不想出镜）
+## 备用开场（如果不想从 CSV 文件开始）
 
-> "In the United States alone, there are over 1.5 million nonprofits. Most of them track client records in spreadsheets. Most of them cannot afford a data engineer. And most of them cannot send their data to the cloud.
+> "This repository contains a working pipeline that takes a CSV file and returns SQL-queryable results with row-level provenance — all using local Gemma 4 inference, with no external API calls.
 >
-> Agentic Data Foundry was built for them."
+> Let me show you what that actually means."
 
 ---
 
-## 视频发布后检查清单
-
-- [ ] 视频时长 ≤ 3:00
-- [ ] YouTube 链接可以在无登录状态下访问
-- [ ] 声音清晰，无背景噪音
-- [ ] 关键数字清晰可见（10 rows, 1 warning, 3 follow-ups）
-- [ ] Kaggle 提交页已填入视频链接
-- [ ] GitHub 仓库链接已填入提交页
-- [ ] Writeup 包含：impact, technical approach, Gemma usage, local-first rationale
-
----
-
-*脚本版本：2026-05-17 | 对应代码版本：main branch ee2a417*
+*脚本版本：2026-05-17 | 对应代码版本：main branch*
