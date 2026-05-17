@@ -1,0 +1,11 @@
+client_id,intake_date,zip_code,primary_need,household_size,language,follow_up_date,status,notes
+C001,2026-04-01,90011,food assistance,4,Spanish,2026-04-30,open,Needs evening pickup window
+C002,2026-04-03,90037,transportation,1,English,2026-05-02,open,Missed last clinic appointment
+C003,2026-04-04,90011,housing referral,3,Korean,2026-04-29,open,Temporary housing expires soon
+C004,2026-04-07,90003,benefits navigation,2,Spanish,2026-05-06,closed,Application submitted
+C005,2026-04-09,90044,transportation,5,English,2026-05-01,open,Needs ride for school enrollment
+C006,2026-04-11,90037,food assistance,2,Spanish,2026-05-03,open,Prefers text message updates
+C007,2026-04-14,90003,legal aid,1,English,2026-05-10,open,Bring lease documents
+C008,2026-04-15,90011,benefits navigation,6,Spanish,,open,Missing follow-up date
+C009,2026-04-16,90044,housing referral,4,English,2026-05-04,open,Requested weekend appointment
+C010,2026-04-18,90037,digital access,2,Tagalog,2026-05-07,open,Needs device and hotspot information
