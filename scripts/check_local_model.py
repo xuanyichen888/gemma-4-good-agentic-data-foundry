@@ -27,8 +27,8 @@ def main() -> None:
     if not status.gemma_models:
         print()
         print("No Gemma model detected. For the hackathon, install a Gemma model, for example:")
-        print("  ollama pull gemma3n:e4b")
-        print("or set ADF_OLLAMA_MODEL to the Gemma model required by the competition.")
+        print("  ollama pull gemma4:e4b")
+        print("or set ADF_OLLAMA_MODEL to point at your local Gemma 4 model.")
         raise SystemExit(2)
 
     print(f"Selected model: {status.selected_model}")

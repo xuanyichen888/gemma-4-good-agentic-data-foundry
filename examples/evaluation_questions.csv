@@ -1,0 +1,11 @@
+question,expected_signal,expected_sql_keywords,expected_result_type
+Which clients need follow-up this week?,Returns open cases ordered by follow-up date with row provenance.,"where,follow_up_date,order by",multiple rows with provenance
+What are the most common unmet needs?,Groups cases by primary_need and counts them.,"group by,count",aggregate rows
+Which ZIP codes have the most transportation requests?,Filters transportation needs and groups by ZIP code.,"where,group by,count",aggregate rows
+How many open cases are older than 14 days?,Filters open records using intake_date older than two weeks.,"where,count,date",single count row
+Which languages should we prioritize for translated outreach?,Groups records by language and counts clients per language.,"group by,count",aggregate rows
+Which records are missing follow-up dates?,Returns records with empty follow_up_date and row provenance.,"where,follow_up_date",multiple rows with provenance
+How many unique ZIP codes are represented?,Returns a single count of distinct zip_code values.,"count,distinct",single count row
+Which open cases have been waiting the longest?,Returns open cases sorted by intake_date ascending.,"where,order by,intake_date",multiple rows with provenance
+How many clients are there per household size?,Groups records by household_size and counts each group.,"group by,count,household_size",aggregate rows
+Show all closed cases with their notes.,Returns status=closed records with client_id and notes fields.,"where,status",multiple rows with provenance

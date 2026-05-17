@@ -76,7 +76,7 @@ Every answer links to source CSV row numbers via a provenance table. Staff can v
 | SQL Repair | Receives error message + broken SQL, produces corrected query (up to 2 retries) | When SQL fails safety check or execution |
 | Answer Explainer | Summarizes what the answer says, what evidence supports it, and one data quality caveat | After query, on demand |
 
-All five roles run locally via `ollama` with `gemma3n:e4b`. No data leaves the user's machine.
+All five roles run locally via `ollama` with **`gemma4:e4b`** (Gemma 4, effective 4B parameters, 9.6 GB, 128K context). No data leaves the user's machine.
 
 ---
 
@@ -114,9 +114,11 @@ streamlit run app/streamlit_app.py
 
 ```bash
 # Install Ollama: https://ollama.com
-ollama pull gemma3n:e4b
+ollama pull gemma4:e4b          # Gemma 4, 9.6 GB — recommended for this project
 # Ollama starts automatically on most systems; if not: ollama serve
 ```
+
+> **Model note:** This project targets **Gemma 4** (`gemma4:e4b`). If you already have `gemma3n:e4b` installed, you can set `ADF_OLLAMA_MODEL=gemma3n:e4b` to use it for testing, but the hackathon submission runs against Gemma 4.
 
 Once Ollama is running, the sidebar will show "Gemma model active." All four agent features become available. The app works without Gemma (deterministic fallback), but the full agentic pipeline requires a local Gemma model.
 

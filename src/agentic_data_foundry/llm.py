@@ -7,7 +7,7 @@ from typing import Any
 import requests
 
 
-DEFAULT_OLLAMA_MODEL = os.getenv("ADF_OLLAMA_MODEL", "gemma3n:e4b")
+DEFAULT_OLLAMA_MODEL = os.getenv("ADF_OLLAMA_MODEL", "gemma4:e4b")
 DEFAULT_OLLAMA_URL = os.getenv("ADF_OLLAMA_URL", "http://localhost:11434")
 
 
