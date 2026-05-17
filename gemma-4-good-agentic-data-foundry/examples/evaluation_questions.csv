@@ -3,5 +3,9 @@ Which clients need follow-up this week?,Returns open cases ordered by follow-up 
 What are the most common unmet needs?,Groups cases by primary_need and counts them.
 Which ZIP codes have the most transportation requests?,Filters transportation needs and groups by ZIP code.
 How many open cases are older than 14 days?,Filters open records using intake_date older than two weeks.
-Which languages should we prioritize for translated outreach?,Groups records by language.
+Which languages should we prioritize for translated outreach?,Groups records by language and counts clients per language.
 Which records are missing follow-up dates?,Returns records with empty follow_up_date and row provenance.
+How many unique ZIP codes are represented?,Returns a single count of distinct zip_code values.
+Which open cases have been waiting the longest?,Returns open cases sorted by intake_date ascending.
+How many clients are there per household size?,Groups records by household_size and counts each group.
+Show all closed cases with their notes.,Returns status=closed records with client_id and notes fields.

@@ -1,11 +1,15 @@
 from __future__ import annotations
 
 import re
+import sqlite3
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from .database import get_provenance_for_rows, run_readonly_sql
+
+if TYPE_CHECKING:
+    from .llm import OllamaGemmaClient
 
 
 class UnsafeQueryError(ValueError):
@@ -28,6 +32,10 @@ EXAMPLE_QUESTIONS = [
     "How many open cases are older than 14 days?",
     "Which languages should we prioritize for translated outreach?",
     "Which records are missing follow-up dates?",
+    "How many unique ZIP codes are represented?",
+    "Which open cases have been waiting the longest?",
+    "How many clients are there per household size?",
+    "Show all closed cases with their notes.",
 ]
 
 
@@ -109,6 +117,45 @@ def validate_select_sql(sql: str, table_name: str) -> None:
         raise UnsafeQueryError(f"Unknown table reference: {blocked}")
 
 
+def answer_with_gemma_repair(
+    db_path: str | Path,
+    table_name: str,
+    columns: list[dict[str, Any]],
+    question: str,
+    client: "OllamaGemmaClient",
+    max_repair: int = 2,
+) -> tuple["QuestionAnswer", int]:
+    """Generate SQL with Gemma, auto-repair on safety or execution errors.
+
+    Returns (answer, repair_count) where repair_count is the number of repairs needed.
+    """
+    from .llm import build_nl2sql_prompt, build_sql_repair_prompt
+
+    prompt = build_nl2sql_prompt(table_name, columns, question)
+    sql = clean_sql(client.generate(prompt))
+    last_error: Exception = RuntimeError("no attempts made")
+
+    for attempt in range(max_repair + 1):
+        try:
+            validate_select_sql(sql, table_name)
+            rows = run_readonly_sql(db_path, sql)
+            provenance = provenance_for_answer(db_path, table_name, rows)
+            repairs = attempt
+            source = "Gemma SQL" if repairs == 0 else f"Gemma SQL (auto-repaired in {repairs} step{'s' if repairs > 1 else ''})"
+            return (
+                QuestionAnswer(question=question, sql=sql, rows=rows, provenance=provenance, source=source),
+                repairs,
+            )
+        except (UnsafeQueryError, sqlite3.OperationalError, sqlite3.DatabaseError) as error:
+            last_error = error
+            if attempt == max_repair:
+                raise last_error
+            repair_prompt = build_sql_repair_prompt(table_name, columns, question, sql, str(error))
+            sql = clean_sql(client.generate(repair_prompt))
+
+    raise last_error
+
+
 def provenance_for_answer(
     db_path: str | Path,
     table_name: str,
@@ -172,6 +219,38 @@ def fallback_sql_for_question(question: str, table_name: str) -> str:
             GROUP BY language
             ORDER BY clients DESC, language ASC
             LIMIT 10
+        """
+
+    if "unique" in q and "zip" in q:
+        return f"""
+            SELECT COUNT(DISTINCT zip_code) AS unique_zip_codes
+            FROM {table_name}
+        """
+
+    if ("waiting" in q or "longest" in q or "earliest" in q) and "open" in q:
+        return f"""
+            SELECT _adf_row_id, client_id, intake_date, zip_code, primary_need, status
+            FROM {table_name}
+            WHERE status = 'open'
+            ORDER BY intake_date ASC
+            LIMIT 10
+        """
+
+    if "household" in q and ("size" in q or "per" in q or "many" in q):
+        return f"""
+            SELECT household_size, COUNT(*) AS clients
+            FROM {table_name}
+            GROUP BY household_size
+            ORDER BY household_size ASC
+        """
+
+    if "closed" in q and ("note" in q or "show" in q or "all" in q):
+        return f"""
+            SELECT _adf_row_id, client_id, intake_date, primary_need, status, notes
+            FROM {table_name}
+            WHERE status = 'closed'
+            ORDER BY intake_date DESC
+            LIMIT 20
         """
 
     return f"""

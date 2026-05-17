@@ -109,6 +109,97 @@ Question: {question}
 """.strip()
 
 
+def build_sql_repair_prompt(
+    table_name: str,
+    columns: list[dict[str, str]],
+    question: str,
+    failed_sql: str,
+    error_message: str,
+) -> str:
+    column_lines = "\n".join(
+        f"- {column['name']} ({column['sqlite_type']})"
+        for column in columns
+    )
+    return f"""
+You are a careful data assistant. Your previous SQL query failed. Fix it.
+
+Rules:
+- Return SQL only. No explanation, no markdown.
+- Use only SELECT. Never use INSERT, UPDATE, DELETE, DROP, ALTER, or PRAGMA.
+- Only reference the table and columns listed below.
+- No semicolons inside the query. No SQL comments.
+
+Table: {table_name}
+Columns:
+{column_lines}
+
+Question: {question}
+
+Your previous SQL (which failed):
+{failed_sql}
+
+Error message:
+{error_message}
+
+Write the corrected SQL query now:
+""".strip()
+
+
+def build_validation_agent_prompt(
+    warnings: list[str],
+    columns: list[dict[str, str]],
+    sample_rows: list[dict[str, Any]],
+) -> str:
+    column_summary = ", ".join(column["name"] for column in columns)
+    row_preview = str(sample_rows[:5])
+    warning_text = "\n".join(f"- {w}" for w in warnings) if warnings else "- No warnings found."
+    return f"""
+You are a data quality advisor helping a small community organization understand their records.
+
+The system flagged these data quality warnings after importing:
+{warning_text}
+
+Database columns: {column_summary}
+
+Sample records (first 5 rows):
+{row_preview}
+
+Write exactly 3 bullet points:
+- What each warning likely means for day-to-day service operations
+- Which warning poses the highest risk to client follow-up and why
+- One concrete action the organization can take this week to address the most critical gap
+
+Be specific, compassionate, and practical. Avoid technical jargon.
+""".strip()
+
+
+def build_schema_review_prompt(
+    columns: list[dict[str, str]],
+    sample_rows: list[dict[str, Any]],
+) -> str:
+    column_lines = "\n".join(
+        f"- {col['name']}: {col['sqlite_type']} (nullable={col.get('nullable', True)})"
+        for col in columns
+    )
+    row_preview = str(sample_rows[:3])
+    return f"""
+You are a database design advisor reviewing an automatically inferred schema for a community service organization.
+
+Inferred schema:
+{column_lines}
+
+Sample data:
+{row_preview}
+
+Write exactly 3 bullet points:
+- Flag any columns where the inferred type may be wrong (e.g. ZIP codes or phone numbers stored as INTEGER lose leading zeros)
+- Identify one column whose values suggest a data entry consistency problem
+- Suggest one additional column this organization should track for better reporting outcomes
+
+Be specific and reference the actual column names above.
+""".strip()
+
+
 def build_answer_summary_prompt(
     question: str,
     sql: str,
