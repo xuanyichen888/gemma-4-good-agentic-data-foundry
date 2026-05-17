@@ -550,9 +550,8 @@ with build_tab:
     left, right = st.columns(2, gap="large")
 
     with left:
-        st.markdown('<div class="section-card"><div class="section-label">Inferred Schema</div>', unsafe_allow_html=True)
+        st.markdown('<div class="section-label">Inferred Schema</div>', unsafe_allow_html=True)
         st.dataframe(pd.DataFrame(result["columns"]), use_container_width=True, height=220)
-        st.markdown('</div>', unsafe_allow_html=True)
 
         if ollama_status.available:
             st.markdown('<div class="agent-chip"><span class="dot"></span>Agent 1 · Schema Reviewer</div>', unsafe_allow_html=True)
@@ -568,13 +567,12 @@ with build_tab:
             st.markdown(f'<div class="gemma-box">{st.session_state["schema_review"]}</div>', unsafe_allow_html=True)
 
     with right:
-        st.markdown('<div class="section-card"><div class="section-label">Validation Report</div>', unsafe_allow_html=True)
+        st.markdown('<div class="section-label">Validation Report</div>', unsafe_allow_html=True)
         if result["validation"]:
             for w in result["validation"]:
                 st.warning(w)
         else:
             st.success("No missing-value warnings detected.")
-        st.markdown('</div>', unsafe_allow_html=True)
 
         if ollama_status.available and result["validation"]:
             st.markdown('<div class="agent-chip"><span class="dot"></span>Agent 2 · Validation Analyst</div>', unsafe_allow_html=True)
