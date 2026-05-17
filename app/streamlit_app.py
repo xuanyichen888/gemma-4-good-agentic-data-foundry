@@ -152,24 +152,13 @@ html, body, [class*="css"] {
 }
 
 /* ── Tabs ── */
-[data-testid="stTabs"] { animation: fadeInUp 0.5s 0.1s ease both; }
-[data-testid="stTabs"] [data-baseweb="tab-list"] {
-    background: white;
-    border-radius: 12px;
-    padding: 4px;
-    gap: 2px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
-}
 [data-testid="stTabs"] [data-baseweb="tab"] {
-    border-radius: 10px !important;
     font-weight: 600;
     font-size: 0.88rem;
-    padding: 10px 20px;
     color: #6B7280;
 }
 [data-testid="stTabs"] [aria-selected="true"] {
-    background: #16A34A !important;
-    color: white !important;
+    color: #16A34A !important;
 }
 
 /* ── Cards ── */
@@ -262,29 +251,9 @@ html, body, [class*="css"] {
 .model-err  { background: #FEE2E2; color: #991B1B; }
 
 /* ── Buttons ── */
-[data-testid="stButton"] button[kind="primary"] {
-    background: linear-gradient(135deg, #16A34A, #15803D) !important;
-    border: none !important;
-    border-radius: 10px !important;
-    font-weight: 700 !important;
-    font-size: 0.9rem !important;
-    padding: 11px 28px !important;
-    box-shadow: 0 4px 12px rgba(22,163,74,0.3) !important;
-    transition: all 0.2s !important;
-}
-[data-testid="stButton"] button[kind="primary"]:hover {
-    box-shadow: 0 6px 16px rgba(22,163,74,0.4) !important;
-    opacity: 0.92;
-}
-[data-testid="stButton"] button:not([kind="primary"]) {
+.stButton > button {
     border-radius: 10px !important;
     font-weight: 600 !important;
-    border-color: #D1FAE5 !important;
-    color: #15803D !important;
-    transition: all 0.2s !important;
-}
-[data-testid="stButton"] button:not([kind="primary"]):hover {
-    background: #F0FDF4 !important;
 }
 
 /* ── SQL block ── */
