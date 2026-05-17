@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import concurrent.futures
+import html as _html
 import sys
 import tempfile
 from pathlib import Path
@@ -38,10 +40,8 @@ st.set_page_config(
 # ── CSS ───────────────────────────────────────────────────────
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400&display=swap');
-
 html, body, [class*="css"], p, span, div, label, input, textarea, button {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important;
 }
 
 /* ── Page ── */
@@ -134,6 +134,28 @@ html, body, [class*="css"], p, span, div, label, input, textarea, button {
 }
 </style>
 """, unsafe_allow_html=True)
+
+
+# ── Gemma timeout wrapper ─────────────────────────────────────
+_GEMMA_TIMEOUT = 90  # seconds; enough for gemma4:e4b on typical hardware
+
+def _run_gemma(client: "OllamaGemmaClient", prompt: str) -> str:
+    """Call Gemma with an application-layer timeout separate from the HTTP timeout."""
+    with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
+        future = pool.submit(client.generate, prompt)
+        try:
+            return future.result(timeout=_GEMMA_TIMEOUT)
+        except concurrent.futures.TimeoutError:
+            future.cancel()
+            raise TimeoutError(
+                f"Gemma did not respond within {_GEMMA_TIMEOUT}s. "
+                "Try: check `ollama serve` is running, or select a smaller model."
+            )
+
+
+def _safe_html(text: str) -> str:
+    """Escape LLM output before injecting into unsafe_allow_html blocks."""
+    return _html.escape(str(text))
 
 
 # ── Helper: custom metric card ─────────────────────────────────
@@ -363,11 +385,17 @@ with build_tab:
             )
             if st.button("Run schema review", use_container_width=True):
                 sample_rows = run_sql(db_path, f"SELECT * FROM {result['table_name']} LIMIT 5")
-                with st.spinner(f"{selected_model} reviewing schema…"):
-                    review = OllamaGemmaClient(model=selected_model).generate(
-                        build_schema_review_prompt(result["columns"], sample_rows)
-                    )
-                st.session_state["schema_review"] = review
+                with st.spinner(f"{selected_model} reviewing schema… (up to {_GEMMA_TIMEOUT}s)"):
+                    try:
+                        review = _run_gemma(
+                            OllamaGemmaClient(model=selected_model),
+                            build_schema_review_prompt(result["columns"], sample_rows),
+                        )
+                        st.session_state["schema_review"] = review
+                    except TimeoutError as e:
+                        st.warning(str(e))
+                    except Exception as e:
+                        st.error(f"Schema review failed: {e}")
 
         if st.session_state.get("schema_review"):
             st.markdown(
@@ -375,7 +403,7 @@ with build_tab:
                 f'border-left:4px solid #16A34A;border-radius:0 8px 8px 0;'
                 f'padding:14px 18px;margin-top:10px;font-size:13.5px;'
                 f'line-height:1.75;color:#14532D;white-space:pre-wrap;">'
-                f'{st.session_state["schema_review"]}</div>',
+                f'{_safe_html(st.session_state["schema_review"])}</div>',
                 unsafe_allow_html=True,
             )
 
@@ -398,11 +426,17 @@ with build_tab:
             )
             if st.button("Explain warnings with Gemma", use_container_width=True):
                 sample_rows = run_sql(db_path, f"SELECT * FROM {result['table_name']} LIMIT 5")
-                with st.spinner(f"{selected_model} analysing data quality…"):
-                    analysis = OllamaGemmaClient(model=selected_model).generate(
-                        build_validation_agent_prompt(result["validation"], result["columns"], sample_rows)
-                    )
-                st.session_state["validation_analysis"] = analysis
+                with st.spinner(f"{selected_model} analysing data quality… (up to {_GEMMA_TIMEOUT}s)"):
+                    try:
+                        analysis = _run_gemma(
+                            OllamaGemmaClient(model=selected_model),
+                            build_validation_agent_prompt(result["validation"], result["columns"], sample_rows),
+                        )
+                        st.session_state["validation_analysis"] = analysis
+                    except TimeoutError as e:
+                        st.warning(str(e))
+                    except Exception as e:
+                        st.error(f"Validation analysis failed: {e}")
 
         if st.session_state.get("validation_analysis"):
             st.markdown(
@@ -410,7 +444,7 @@ with build_tab:
                 f'border-left:4px solid #16A34A;border-radius:0 8px 8px 0;'
                 f'padding:14px 18px;margin-top:10px;font-size:13.5px;'
                 f'line-height:1.75;color:#14532D;white-space:pre-wrap;">'
-                f'{st.session_state["validation_analysis"]}</div>',
+                f'{_safe_html(st.session_state["validation_analysis"])}</div>',
                 unsafe_allow_html=True,
             )
 
@@ -444,11 +478,20 @@ with ask_tab:
                 st.stop()
             client = OllamaGemmaClient(model=selected_model)
             try:
-                with st.spinner(f"{selected_model} generating SQL with auto-repair…"):
-                    answer, repair_count = answer_with_gemma_repair(
-                        db_path=db_path, table_name=result["table_name"],
-                        columns=result["columns"], question=question, client=client,
-                    )
+                with st.spinner(f"{selected_model} generating SQL with auto-repair… (up to {_GEMMA_TIMEOUT}s per step)"):
+                    with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
+                        future = pool.submit(
+                            answer_with_gemma_repair,
+                            db_path, result["table_name"], result["columns"], question, client,
+                        )
+                        try:
+                            answer, repair_count = future.result(timeout=_GEMMA_TIMEOUT * 3)
+                        except concurrent.futures.TimeoutError:
+                            st.warning(
+                                f"Gemma did not respond within {_GEMMA_TIMEOUT * 3}s. "
+                                "Check Ollama or try a smaller model."
+                            )
+                            st.stop()
                 st.session_state.update({"last_answer": answer, "repair_count": repair_count})
             except UnsafeQueryError as e:
                 st.error(f"Blocked unsafe SQL after repair: {e}"); st.stop()
@@ -466,10 +509,16 @@ with ask_tab:
 
         if generate_summary and ollama_status.available:
             ans = st.session_state["last_answer"]
-            with st.spinner(f"{selected_model} explaining the answer…"):
-                st.session_state["last_summary"] = OllamaGemmaClient(model=selected_model).generate(
-                    build_answer_summary_prompt(ans.question, ans.sql, ans.rows, ans.provenance)
-                )
+            with st.spinner(f"{selected_model} explaining the answer… (up to {_GEMMA_TIMEOUT}s)"):
+                try:
+                    st.session_state["last_summary"] = _run_gemma(
+                        OllamaGemmaClient(model=selected_model),
+                        build_answer_summary_prompt(ans.question, ans.sql, ans.rows, ans.provenance),
+                    )
+                except TimeoutError as e:
+                    st.warning(str(e))
+                except Exception as e:
+                    st.error(f"Answer explanation failed: {e}")
 
     answer = st.session_state.get("last_answer")
     if answer:
@@ -507,7 +556,7 @@ with ask_tab:
                 f'border-left:4px solid #16A34A;border-radius:0 8px 8px 0;'
                 f'padding:14px 18px;margin-top:4px;font-size:13.5px;'
                 f'line-height:1.75;color:#14532D;white-space:pre-wrap;">'
-                f'{st.session_state["last_summary"]}</div>',
+                f'{_safe_html(st.session_state["last_summary"])}</div>',
                 unsafe_allow_html=True,
             )
 
