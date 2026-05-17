@@ -35,180 +35,134 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-# ── Global CSS ────────────────────────────────────────────────
+# ── CSS ───────────────────────────────────────────────────────
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400&display=swap');
 
-html, body, [class*="css"] {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-}
-
-/* ── Page background ── */
-.stApp { background: #F5F5F0; }
-
-/* ── Metric cards ── */
-[data-testid="metric-container"] {
-    background: white;
-    border-radius: 12px;
-    padding: 20px 22px 18px;
-    border: 1px solid #E5E7EB;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
-}
-[data-testid="metric-container"] [data-testid="stMetricLabel"] {
-    font-size: 0.72rem !important;
-    font-weight: 600 !important;
-    letter-spacing: 0.06em !important;
-    text-transform: uppercase !important;
-    color: #6B7280 !important;
-}
-[data-testid="metric-container"] [data-testid="stMetricValue"] {
-    font-size: 1.7rem !important;
-    font-weight: 800 !important;
-    color: #111827 !important;
-    line-height: 1.2 !important;
+html, body, [class*="css"], p, span, div, label, input, textarea, button {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
 }
 
-/* ── Tabs ── */
-[data-testid="stTabs"] {
-    margin-top: 8px;
-}
-[data-testid="stTabs"] [data-baseweb="tab-list"] {
-    background: white;
-    border-radius: 12px 12px 0 0;
-    border: 1px solid #E5E7EB;
-    border-bottom: none;
-    padding: 0 8px;
-    gap: 0;
-}
-[data-testid="stTabs"] [data-baseweb="tab"] {
-    font-weight: 600;
-    font-size: 0.85rem;
-    color: #6B7280;
-    padding: 12px 20px;
-    border-bottom: 3px solid transparent;
-}
-[data-testid="stTabs"] [aria-selected="true"] {
-    color: #16A34A !important;
-    border-bottom-color: #16A34A !important;
-}
-[data-testid="stTabs"] [data-baseweb="tab-panel"] {
-    background: white;
-    border: 1px solid #E5E7EB;
-    border-radius: 0 0 12px 12px;
-    padding: 28px 24px;
-}
-
-/* ── Section labels ── */
-.lbl {
-    font-size: 0.68rem;
-    font-weight: 700;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: #9CA3AF;
-    margin-bottom: 10px;
-    margin-top: 4px;
-}
-
-/* ── Agent chips ── */
-.chip {
-    display: inline-block;
-    background: #FFF7ED;
-    border: 1px solid #FED7AA;
-    color: #C2410C;
-    font-size: 0.7rem;
-    font-weight: 700;
-    border-radius: 6px;
-    padding: 3px 10px;
-    margin-bottom: 10px;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-}
-
-/* ── Gemma output box ── */
-.gbox {
-    background: #F0FDF4;
-    border: 1px solid #BBF7D0;
-    border-left: 4px solid #16A34A;
-    border-radius: 0 10px 10px 0;
-    padding: 16px 20px;
-    margin-top: 12px;
-    line-height: 1.75;
-    font-size: 0.88rem;
-    color: #14532D;
-    white-space: pre-wrap;
-}
-
-/* ── Model status pill ── */
-.mpill {
-    display: inline-block;
-    border-radius: 6px;
-    padding: 4px 12px;
-    font-size: 0.78rem;
-    font-weight: 700;
-    margin-top: 6px;
-}
-.mpill-ok   { background: #DCFCE7; color: #166534; }
-.mpill-warn { background: #FEF3C7; color: #92400E; }
-.mpill-err  { background: #FEE2E2; color: #991B1B; }
-
-/* ── Sidebar brand header ── */
-[data-testid="stSidebar"] {
-    background: #FFFFFF;
-    border-right: 1px solid #E5E7EB;
-}
-[data-testid="stSidebar"] hr {
-    border-color: #F3F4F6;
-    margin: 16px 0;
-}
-
-/* ── Sidebar label ── */
-.slbl {
-    font-size: 0.65rem;
-    font-weight: 700;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: #9CA3AF;
-    margin-bottom: 8px;
-    display: block;
-}
-
-/* ── Buttons ── */
-.stButton > button {
-    border-radius: 8px !important;
-    font-weight: 600 !important;
-    font-size: 0.88rem !important;
-}
-
-/* ── Code block ── */
-[data-testid="stCode"] {
-    border-radius: 10px;
-}
-[data-testid="stCode"] > div {
-    border-radius: 10px !important;
-    border: 1px solid #E5E7EB !important;
-    background: #F9FAFB !important;
-}
-
-/* ── Dataframe ── */
-[data-testid="stDataFrame"] {
-    border-radius: 10px;
-    overflow: hidden;
-    border: 1px solid #E5E7EB;
-}
-
-/* ── Alerts ── */
-[data-testid="stAlert"] { border-radius: 8px !important; }
-
-/* ── File uploader ── */
-[data-testid="stFileUploader"] {
-    border-radius: 10px;
-}
+/* ── Page ── */
+.stApp { background: #F0F2F0; }
+.block-container { padding-top: 24px !important; padding-bottom: 40px !important; }
 
 /* ── Hide Streamlit chrome ── */
 #MainMenu, footer, header { visibility: hidden; }
+
+/* ── Sidebar ── */
+[data-testid="stSidebar"] { background: #FFFFFF !important; border-right: 1px solid #E2E8E2; }
+[data-testid="stSidebar"] > div:first-child { padding-top: 0 !important; }
+[data-testid="stSidebar"] hr { border-color: #F0F0F0; margin: 14px 0; }
+
+/* ── Buttons ── */
+.stButton > button {
+    font-family: 'Inter', sans-serif !important;
+    font-weight: 600 !important;
+    border-radius: 8px !important;
+    font-size: 14px !important;
+    letter-spacing: -0.01em !important;
+}
+
+/* ── Tab list ── */
+[data-baseweb="tab-list"] {
+    background: #FFFFFF !important;
+    border-radius: 10px 10px 0 0 !important;
+    border-bottom: 2px solid #E5E7EB !important;
+    gap: 0 !important;
+    padding: 0 4px !important;
+}
+[data-baseweb="tab"] {
+    font-family: 'Inter', sans-serif !important;
+    font-size: 13.5px !important;
+    font-weight: 600 !important;
+    color: #6B7280 !important;
+    padding: 12px 20px !important;
+    border-bottom: 3px solid transparent !important;
+    margin-bottom: -2px !important;
+}
+[aria-selected="true"][data-baseweb="tab"] {
+    color: #15803D !important;
+    border-bottom-color: #15803D !important;
+}
+[data-baseweb="tab-panel"] {
+    background: #FFFFFF !important;
+    border: 1px solid #E5E7EB !important;
+    border-top: none !important;
+    border-radius: 0 0 10px 10px !important;
+    padding: 28px 24px !important;
+}
+
+/* ── Alerts ── */
+[data-testid="stAlert"] { border-radius: 8px !important; font-size: 14px !important; }
+
+/* ── Code ── */
+[data-testid="stCode"] > div {
+    border-radius: 8px !important;
+    border: 1px solid #E5E7EB !important;
+    font-size: 13px !important;
+}
+
+/* ── Dataframe ── */
+[data-testid="stDataFrame"] { border-radius: 8px; overflow: hidden; }
+
+/* ── File uploader ── */
+[data-testid="stFileUploader"] section {
+    padding: 12px 16px !important;
+    border-radius: 8px !important;
+}
+[data-testid="stFileUploader"] section p {
+    font-size: 13px !important;
+}
+
+/* ── Selectbox / inputs ── */
+[data-baseweb="select"] {
+    font-size: 14px !important;
+}
+
+/* ── Checkbox ── */
+[data-testid="stCheckbox"] label {
+    font-size: 14px !important;
+    font-weight: 500 !important;
+}
+
+/* ── Caption ── */
+[data-testid="stCaptionContainer"] p {
+    font-size: 12px !important;
+    color: #9CA3AF !important;
+}
 </style>
 """, unsafe_allow_html=True)
+
+
+# ── Helper: custom metric card ─────────────────────────────────
+def metric_card(label: str, value: str, color: str = "#15803D") -> str:
+    return (
+        f'<div style="background:white;border:1px solid #E5E7EB;border-radius:10px;'
+        f'padding:18px 20px 16px;height:100%;">'
+        f'<div style="font-size:11px;font-weight:700;letter-spacing:0.09em;'
+        f'text-transform:uppercase;color:#9CA3AF;margin-bottom:10px;line-height:1;">'
+        f'{label}</div>'
+        f'<div style="font-size:28px;font-weight:800;color:#111827;line-height:1;'
+        f'letter-spacing:-0.03em;">{value}</div>'
+        f'<div style="margin-top:8px;height:3px;border-radius:2px;'
+        f'background:{color};width:32px;"></div>'
+        f'</div>'
+    )
+
+
+# ── Helper: section heading ────────────────────────────────────
+def section_heading(text: str, tight: bool = False) -> None:
+    mb = "10px" if tight else "14px"
+    mt = "4px" if tight else "0"
+    st.markdown(
+        f'<div style="font-size:11px;font-weight:700;letter-spacing:0.09em;'
+        f'text-transform:uppercase;color:#9CA3AF;margin-bottom:{mb};margin-top:{mt};">'
+        f'{text}</div>',
+        unsafe_allow_html=True,
+    )
+
 
 # ── Sidebar ───────────────────────────────────────────────────
 example_path = ROOT / "examples" / "community_intake.csv"
@@ -217,23 +171,25 @@ db_path = ROOT / "agentic_data_foundry_demo.sqlite"
 with st.sidebar:
     # Brand header
     st.markdown(
-        '<div style="'
-        'background: linear-gradient(135deg,#14532D,#166534);'
-        'border-radius:12px; padding:20px 18px 18px; margin-bottom:20px;'
-        'text-align:center;'
-        '">'
-        '<div style="font-size:2rem; margin-bottom:6px;">🌱</div>'
-        '<div style="font-weight:800; font-size:0.95rem; color:#fff; letter-spacing:-0.01em;">'
-        'Agentic Data Foundry'
-        '</div>'
-        '<div style="font-size:0.68rem; color:rgba(255,255,255,0.6); margin-top:4px; letter-spacing:0.06em; text-transform:uppercase;">'
-        'Gemma 4 Good Hackathon'
-        '</div>'
+        '<div style="background:linear-gradient(160deg,#0F4C2A,#186E3A);'
+        'padding:22px 20px 20px;margin:-1px -1px 0;">'
+        '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">'
+        '<div style="background:rgba(255,255,255,0.15);border-radius:10px;'
+        'width:36px;height:36px;display:flex;align-items:center;justify-content:center;'
+        'font-size:18px;">🌱</div>'
+        '<div>'
+        '<div style="font-weight:800;font-size:14px;color:#fff;letter-spacing:-0.02em;line-height:1.2;">'
+        'Agentic Data Foundry</div>'
+        '<div style="font-size:10px;color:rgba(255,255,255,0.55);letter-spacing:0.08em;'
+        'text-transform:uppercase;margin-top:2px;">Gemma 4 Good</div>'
+        '</div></div>'
+        '<div style="height:1px;background:rgba(255,255,255,0.12);"></div>'
         '</div>',
         unsafe_allow_html=True,
     )
 
-    st.markdown('<span class="slbl">Data Source</span>', unsafe_allow_html=True)
+    st.markdown("<div style='height:16px'></div>", unsafe_allow_html=True)
+    section_heading("Data Source")
     uploaded = st.file_uploader("Upload your CSV", type=["csv"], label_visibility="collapsed")
     use_example = uploaded is None
     if use_example:
@@ -244,7 +200,7 @@ with st.sidebar:
         csv_path = temp_dir / uploaded.name
         csv_path.write_bytes(uploaded.getvalue())
 
-    st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
+    st.markdown("<div style='height:4px'></div>", unsafe_allow_html=True)
     if st.button("🗄️  Build Database", type="primary", use_container_width=True):
         with st.spinner("Importing records and building provenance table…"):
             result = build_sqlite_from_csv(csv_path, db_path, table_name="community_intake")
@@ -260,7 +216,7 @@ with st.sidebar:
 
     # Model status
     ollama_status = get_ollama_status()
-    st.markdown('<span class="slbl">Local Gemma 4 Model</span>', unsafe_allow_html=True)
+    section_heading("Gemma 4 Model")
     if ollama_status.available:
         model_options = ollama_status.models or [ollama_status.selected_model]
         selected_model = st.selectbox(
@@ -269,64 +225,88 @@ with st.sidebar:
             if ollama_status.selected_model in model_options else 0,
             label_visibility="collapsed",
         )
-        if is_gemma_model(selected_model):
-            st.markdown(f'<span class="mpill mpill-ok">● {selected_model} active</span>', unsafe_allow_html=True)
-        else:
-            st.markdown(f'<span class="mpill mpill-warn">⚠ {selected_model}</span>', unsafe_allow_html=True)
+        pill_bg = "#DCFCE7" if is_gemma_model(selected_model) else "#FEF3C7"
+        pill_color = "#166534" if is_gemma_model(selected_model) else "#92400E"
+        pill_icon = "●" if is_gemma_model(selected_model) else "⚠"
+        st.markdown(
+            f'<div style="display:inline-block;background:{pill_bg};color:{pill_color};'
+            f'border-radius:6px;padding:4px 10px;font-size:12px;font-weight:700;'
+            f'margin-top:6px;">{pill_icon} {selected_model}</div>',
+            unsafe_allow_html=True,
+        )
     else:
         selected_model = ollama_status.selected_model
-        st.markdown('<span class="mpill mpill-err">✕ Ollama unreachable</span>', unsafe_allow_html=True)
+        st.markdown(
+            '<div style="display:inline-block;background:#FEE2E2;color:#991B1B;'
+            'border-radius:6px;padding:4px 10px;font-size:12px;font-weight:700;">'
+            '✕ Ollama unreachable</div>',
+            unsafe_allow_html=True,
+        )
         st.caption("Run `ollama serve` and pull `gemma4:e4b`.")
 
     st.divider()
 
     # Agent pipeline
-    st.markdown('<span class="slbl">Agent Pipeline</span>', unsafe_allow_html=True)
-    for num, name, desc in [
-        ("1", "Schema Reviewer", "Audits inferred column types"),
-        ("2", "Validation Analyst", "Explains data quality gaps"),
-        ("3", "SQL Generator", "NL → SQL with auto-repair loop"),
-        ("4", "Answer Explainer", "Summarises results & caveats"),
-    ]:
+    section_heading("Agent Pipeline")
+    AGENTS = [
+        ("1", "#DCFCE7", "#166534", "Schema Reviewer", "Audits column types, flags type risks"),
+        ("2", "#FEF9C3", "#854D0E", "Validation Analyst", "Explains missing-field warnings"),
+        ("3", "#DBEAFE", "#1E40AF", "SQL Generator", "NL → SQL with auto-repair loop"),
+        ("4", "#F3E8FF", "#6B21A8", "Answer Explainer", "Summarises results & caveats"),
+    ]
+    for num, bg, fg, name, desc in AGENTS:
         st.markdown(
-            f'<div style="display:flex;align-items:flex-start;gap:10px;padding:7px 0;border-bottom:1px solid #F3F4F6;">'
-            f'<div style="min-width:22px;height:22px;border-radius:50%;background:#DCFCE7;color:#166534;'
-            f'font-size:0.65rem;font-weight:800;display:flex;align-items:center;justify-content:center;">{num}</div>'
-            f'<div style="line-height:1.4;">'
-            f'<div style="font-size:0.8rem;font-weight:700;color:#111827;">{name}</div>'
-            f'<div style="font-size:0.72rem;color:#6B7280;">{desc}</div>'
+            f'<div style="display:flex;gap:10px;align-items:flex-start;padding:8px 0;'
+            f'border-bottom:1px solid #F3F4F6;">'
+            f'<div style="min-width:20px;height:20px;border-radius:50%;background:{bg};color:{fg};'
+            f'font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;'
+            f'flex-shrink:0;margin-top:1px;">{num}</div>'
+            f'<div>'
+            f'<div style="font-size:12px;font-weight:700;color:#111827;line-height:1.3;">{name}</div>'
+            f'<div style="font-size:11px;color:#6B7280;margin-top:2px;line-height:1.4;">{desc}</div>'
             f'</div></div>',
             unsafe_allow_html=True,
         )
 
 # ── Hero ──────────────────────────────────────────────────────
 st.markdown(
-    '<div style="'
-    'background:linear-gradient(135deg,#052E16 0%,#14532D 45%,#166534 100%);'
-    'border-radius:16px; padding:44px 52px 40px; margin-bottom:24px; color:white;'
-    '">'
-    '<div style="font-size:0.7rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;'
-    'color:rgba(255,255,255,0.55);margin-bottom:16px;">'
-    '🌱 &nbsp;Gemma 4 Good Hackathon &nbsp;·&nbsp; Digital Equity &amp; Safety'
+    '<div style="background:linear-gradient(135deg,#0B3D20 0%,#145A32 50%,#1A7A40 100%);'
+    'border-radius:14px;padding:32px 44px 30px;margin-bottom:20px;">'
+
+    # Eyebrow
+    '<div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">'
+    '<div style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);'
+    'border-radius:999px;padding:3px 12px 4px;font-size:11px;font-weight:700;'
+    'letter-spacing:0.08em;text-transform:uppercase;color:rgba(255,255,255,0.75);">'
+    '🌱 &nbsp;Gemma 4 Good Hackathon</div>'
+    '<div style="width:4px;height:4px;border-radius:50%;background:rgba(255,255,255,0.3);"></div>'
+    '<div style="font-size:11px;font-weight:600;color:rgba(255,255,255,0.5);">Digital Equity &amp; Safety</div>'
     '</div>'
-    '<div style="font-size:2.5rem;font-weight:800;line-height:1.15;margin-bottom:16px;letter-spacing:-0.02em;">'
-    'Turn messy records into<br>'
-    '<span style="color:#86EFAC;">trusted databases</span>'
+
+    # Title
+    '<div style="font-size:34px;font-weight:900;line-height:1.15;letter-spacing:-0.03em;'
+    'color:#fff;margin-bottom:12px;">'
+    'Turn messy records into&nbsp;<span style="color:#6EE7A0;">trusted databases</span>'
     '</div>'
-    '<div style="font-size:1rem;color:rgba(255,255,255,0.8);line-height:1.7;max-width:580px;margin-bottom:28px;">'
-    'Small community organizations track hundreds of families in spreadsheets — '
-    'but lack a data engineer. <strong style="color:white;">Agentic Data Foundry</strong> uses '
-    'local Gemma&nbsp;4 agents to build a clean, queryable database with source evidence for every answer.'
+
+    # Subtitle
+    '<div style="font-size:14.5px;color:rgba(255,255,255,0.72);line-height:1.65;'
+    'max-width:560px;margin-bottom:22px;font-weight:400;">'
+    'Small nonprofits track hundreds of families in spreadsheets — but lack a data engineer. '
+    '<strong style="color:rgba(255,255,255,0.92);font-weight:600;">Agentic Data Foundry</strong> '
+    'uses local Gemma&nbsp;4 agents to build a clean, queryable database with source evidence for every answer.'
     '</div>'
-    '<div style="display:flex;flex-wrap:wrap;gap:10px;">'
-    '<span style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.25);'
-    'border-radius:6px;padding:5px 14px;font-size:0.8rem;font-weight:600;">🔒 Data stays local</span>'
-    '<span style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.25);'
-    'border-radius:6px;padding:5px 14px;font-size:0.8rem;font-weight:600;">🤖 4 Gemma 4 agents</span>'
-    '<span style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.25);'
-    'border-radius:6px;padding:5px 14px;font-size:0.8rem;font-weight:600;">📎 Row-level provenance</span>'
-    '<span style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.25);'
-    'border-radius:6px;padding:5px 14px;font-size:0.8rem;font-weight:600;">🛡 SQL safety validation</span>'
+
+    # Pills
+    '<div style="display:flex;flex-wrap:wrap;gap:8px;">'
+    '<div style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);'
+    'border-radius:6px;padding:5px 13px;font-size:12px;font-weight:600;color:rgba(255,255,255,0.88);">🔒 Local-only inference</div>'
+    '<div style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);'
+    'border-radius:6px;padding:5px 13px;font-size:12px;font-weight:600;color:rgba(255,255,255,0.88);">🤖 4 Gemma 4 agents</div>'
+    '<div style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);'
+    'border-radius:6px;padding:5px 13px;font-size:12px;font-weight:600;color:rgba(255,255,255,0.88);">📎 Row-level provenance</div>'
+    '<div style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);'
+    'border-radius:6px;padding:5px 13px;font-size:12px;font-weight:600;color:rgba(255,255,255,0.88);">🛡 SQL safety validation</div>'
     '</div>'
     '</div>',
     unsafe_allow_html=True,
@@ -338,25 +318,26 @@ result = st.session_state.get("build_result")
 if not result:
     st.markdown(
         '<div style="background:white;border:1px solid #E5E7EB;border-radius:12px;'
-        'padding:64px 32px;text-align:center;margin-top:8px;">'
-        '<div style="font-size:3rem;margin-bottom:16px;">📂</div>'
-        '<div style="font-size:1.15rem;font-weight:700;color:#111827;margin-bottom:8px;">No database yet</div>'
-        '<div style="font-size:0.9rem;color:#6B7280;line-height:1.6;">'
+        'padding:64px 32px;text-align:center;margin-top:4px;">'
+        '<div style="font-size:40px;margin-bottom:16px;">📂</div>'
+        '<div style="font-size:17px;font-weight:800;color:#111827;margin-bottom:8px;letter-spacing:-0.02em;">'
+        'No database yet</div>'
+        '<div style="font-size:14px;color:#6B7280;line-height:1.65;">'
         'Upload a CSV or use the synthetic example,<br>'
-        'then click <strong>Build Database</strong> in the sidebar.</div>'
+        'then click <strong style="color:#111827;">Build Database</strong> in the sidebar.</div>'
         '</div>',
         unsafe_allow_html=True,
     )
     st.stop()
 
 # ── Metrics ───────────────────────────────────────────────────
-c1, c2, c3, c4 = st.columns(4)
-c1.metric("Rows imported", result["row_count"])
-c2.metric("Columns", len(result["columns"]))
-c3.metric("Validation warnings", len(result["validation"]))
-c4.metric("Storage", "SQLite · local")
+m1, m2, m3, m4 = st.columns(4)
+m1.markdown(metric_card("Rows imported", str(result["row_count"]), "#15803D"), unsafe_allow_html=True)
+m2.markdown(metric_card("Columns", str(len(result["columns"])), "#2563EB"), unsafe_allow_html=True)
+m3.markdown(metric_card("Data warnings", str(len(result["validation"])), "#D97706"), unsafe_allow_html=True)
+m4.markdown(metric_card("Storage", "SQLite", "#7C3AED"), unsafe_allow_html=True)
 
-st.markdown("<div style='height:4px'></div>", unsafe_allow_html=True)
+st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
 
 # ── Tabs ──────────────────────────────────────────────────────
 build_tab, ask_tab, evidence_tab = st.tabs(["🗂  Build & Validate", "💬  Ask", "🔍  Evidence"])
@@ -368,12 +349,16 @@ with build_tab:
     left, right = st.columns(2, gap="large")
 
     with left:
-        st.markdown('<div class="lbl">Inferred Schema</div>', unsafe_allow_html=True)
+        section_heading("Inferred Schema")
         st.dataframe(pd.DataFrame(result["columns"]), use_container_width=True, height=220)
 
         if ollama_status.available:
             st.markdown(
-                '<span class="chip">⚡ Agent 1 · Schema Reviewer</span>',
+                '<div style="display:inline-flex;align-items:center;gap:6px;'
+                'background:#FFF7ED;border:1px solid #FED7AA;color:#C2410C;'
+                'font-size:11px;font-weight:700;border-radius:6px;'
+                'padding:3px 10px;margin-bottom:10px;letter-spacing:0.04em;text-transform:uppercase;">'
+                '⚡ Agent 1 · Schema Reviewer</div>',
                 unsafe_allow_html=True,
             )
             if st.button("Run schema review", use_container_width=True):
@@ -386,12 +371,16 @@ with build_tab:
 
         if st.session_state.get("schema_review"):
             st.markdown(
-                f'<div class="gbox">{st.session_state["schema_review"]}</div>',
+                f'<div style="background:#F0FDF4;border:1px solid #BBF7D0;'
+                f'border-left:4px solid #16A34A;border-radius:0 8px 8px 0;'
+                f'padding:14px 18px;margin-top:10px;font-size:13.5px;'
+                f'line-height:1.75;color:#14532D;white-space:pre-wrap;">'
+                f'{st.session_state["schema_review"]}</div>',
                 unsafe_allow_html=True,
             )
 
     with right:
-        st.markdown('<div class="lbl">Validation Report</div>', unsafe_allow_html=True)
+        section_heading("Validation Report")
         if result["validation"]:
             for w in result["validation"]:
                 st.warning(w)
@@ -400,7 +389,11 @@ with build_tab:
 
         if ollama_status.available and result["validation"]:
             st.markdown(
-                '<span class="chip">⚡ Agent 2 · Validation Analyst</span>',
+                '<div style="display:inline-flex;align-items:center;gap:6px;'
+                'background:#FFF7ED;border:1px solid #FED7AA;color:#C2410C;'
+                'font-size:11px;font-weight:700;border-radius:6px;'
+                'padding:3px 10px;margin-bottom:10px;letter-spacing:0.04em;text-transform:uppercase;">'
+                '⚡ Agent 2 · Validation Analyst</div>',
                 unsafe_allow_html=True,
             )
             if st.button("Explain warnings with Gemma", use_container_width=True):
@@ -413,12 +406,16 @@ with build_tab:
 
         if st.session_state.get("validation_analysis"):
             st.markdown(
-                f'<div class="gbox">{st.session_state["validation_analysis"]}</div>',
+                f'<div style="background:#F0FDF4;border:1px solid #BBF7D0;'
+                f'border-left:4px solid #16A34A;border-radius:0 8px 8px 0;'
+                f'padding:14px 18px;margin-top:10px;font-size:13.5px;'
+                f'line-height:1.75;color:#14532D;white-space:pre-wrap;">'
+                f'{st.session_state["validation_analysis"]}</div>',
                 unsafe_allow_html=True,
             )
 
     st.divider()
-    st.markdown('<div class="lbl">Database Preview — first 20 rows</div>', unsafe_allow_html=True)
+    section_heading("Database Preview — first 20 rows")
     rows = run_sql(db_path, f"SELECT * FROM {result['table_name']} LIMIT 20")
     st.dataframe(pd.DataFrame(rows), use_container_width=True)
 
@@ -428,11 +425,11 @@ with build_tab:
 with ask_tab:
     q_col, opt_col = st.columns([3, 2], gap="large")
     with q_col:
-        st.markdown('<div class="lbl">Your Question</div>', unsafe_allow_html=True)
+        section_heading("Your Question")
         choice = st.selectbox("Example", EXAMPLE_QUESTIONS, label_visibility="collapsed")
         question = st.text_input("Edit or write your own question", value=choice)
     with opt_col:
-        st.markdown('<div class="lbl">Options</div>', unsafe_allow_html=True)
+        section_heading("Options")
         use_gemma = st.checkbox("Generate SQL with Gemma 4 (Agent 3)", value=False)
         generate_summary = st.checkbox("Generate Gemma explanation (Agent 4)", value=use_gemma)
 
@@ -482,25 +479,35 @@ with ask_tab:
 
         st.divider()
 
-        src_color = "#16A34A" if "gemma" in answer.source.lower() else "#6B7280"
+        src_label = answer.source
+        src_color = "#15803D" if "gemma" in src_label.lower() else "#6B7280"
         st.markdown(
-            f'<div class="lbl" style="margin-top:4px;">Generated SQL &nbsp;'
-            f'<span style="color:{src_color};text-transform:none;letter-spacing:0;'
-            f'font-weight:700;font-size:0.75rem;">· {answer.source}</span></div>',
+            f'<div style="font-size:11px;font-weight:700;letter-spacing:0.09em;'
+            f'text-transform:uppercase;color:#9CA3AF;margin-bottom:10px;">'
+            f'Generated SQL &nbsp;<span style="color:{src_color};text-transform:none;'
+            f'letter-spacing:0;font-size:11px;">· {src_label}</span></div>',
             unsafe_allow_html=True,
         )
         st.code(answer.sql, language="sql")
 
-        st.markdown('<div class="lbl" style="margin-top:16px;">Results</div>', unsafe_allow_html=True)
+        section_heading("Results")
         st.dataframe(pd.DataFrame(answer.rows), use_container_width=True)
 
         if st.session_state.get("last_summary"):
             st.markdown(
-                '<span class="chip">⚡ Agent 4 · Answer Explainer</span>',
+                '<div style="display:inline-flex;align-items:center;gap:6px;'
+                'background:#FFF7ED;border:1px solid #FED7AA;color:#C2410C;'
+                'font-size:11px;font-weight:700;border-radius:6px;'
+                'padding:3px 10px;margin-bottom:10px;letter-spacing:0.04em;text-transform:uppercase;">'
+                '⚡ Agent 4 · Answer Explainer</div>',
                 unsafe_allow_html=True,
             )
             st.markdown(
-                f'<div class="gbox">{st.session_state["last_summary"]}</div>',
+                f'<div style="background:#F0FDF4;border:1px solid #BBF7D0;'
+                f'border-left:4px solid #16A34A;border-radius:0 8px 8px 0;'
+                f'padding:14px 18px;margin-top:4px;font-size:13.5px;'
+                f'line-height:1.75;color:#14532D;white-space:pre-wrap;">'
+                f'{st.session_state["last_summary"]}</div>',
                 unsafe_allow_html=True,
             )
 
@@ -511,19 +518,22 @@ with evidence_tab:
     answer = st.session_state.get("last_answer")
     if not answer:
         st.markdown(
-            '<div style="text-align:center;padding:56px 20px;">'
-            '<div style="font-size:3rem;margin-bottom:16px;">🔍</div>'
-            '<div style="font-size:1.1rem;font-weight:700;color:#111827;margin-bottom:8px;">No query run yet</div>'
-            '<div style="font-size:0.88rem;color:#6B7280;line-height:1.6;">'
-            'Run a trusted query in the Ask tab,<br>then come back here to inspect the source evidence.'
-            '</div></div>',
+            '<div style="text-align:center;padding:60px 20px;">'
+            '<div style="font-size:40px;margin-bottom:16px;">🔍</div>'
+            '<div style="font-size:17px;font-weight:800;color:#111827;'
+            'margin-bottom:8px;letter-spacing:-0.02em;">No query run yet</div>'
+            '<div style="font-size:14px;color:#6B7280;line-height:1.65;">'
+            'Run a trusted query in the Ask tab,<br>'
+            'then return here to inspect source evidence.</div>'
+            '</div>',
             unsafe_allow_html=True,
         )
     elif answer.provenance:
+        section_heading("Source Provenance")
         st.markdown(
-            '<div class="lbl">Source Provenance</div>'
-            '<div style="font-size:0.85rem;color:#6B7280;margin-bottom:14px;">'
-            'Each row traces back to a specific line number in your original CSV file.'
+            '<div style="font-size:13px;color:#6B7280;margin-bottom:14px;line-height:1.6;">'
+            'Each result row is traced back to a specific line in your original CSV file. '
+            'Staff can verify any answer against the source data.'
             '</div>',
             unsafe_allow_html=True,
         )
