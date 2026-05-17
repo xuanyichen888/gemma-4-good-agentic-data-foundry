@@ -149,7 +149,6 @@ html, body, [class*="css"] {
     padding: 20px 24px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04);
     border-top: 3px solid #16A34A;
-    animation: fadeInUp 0.5s ease both;
 }
 
 /* ── Tabs ── */
@@ -172,7 +171,6 @@ html, body, [class*="css"] {
     background: #16A34A !important;
     color: white !important;
 }
-[data-testid="stTabs"] [data-baseweb="tab-highlight"] { display: none; }
 
 /* ── Cards ── */
 .section-card {
@@ -275,8 +273,8 @@ html, body, [class*="css"] {
     transition: all 0.2s !important;
 }
 [data-testid="stButton"] button[kind="primary"]:hover {
-    transform: translateY(-1px);
     box-shadow: 0 6px 16px rgba(22,163,74,0.4) !important;
+    opacity: 0.92;
 }
 [data-testid="stButton"] button:not([kind="primary"]) {
     border-radius: 10px !important;
