@@ -96,13 +96,16 @@ def build_nl2sql_prompt(table_name: str, columns: list[dict[str, str]], question
 You are a careful data assistant. Convert the user's question into one SQLite SELECT query.
 
 Rules:
-- Return SQL only.
+- Return SQL only. No explanation, no markdown.
 - Use only the table and columns listed below.
 - Do not write INSERT, UPDATE, DELETE, DROP, ALTER, or PRAGMA.
+- If the question asks about specific records or individuals (not an aggregate count or group-by), always include _adf_row_id in the SELECT list so source evidence can be traced.
+- If the question is a count, sum, or group-by aggregation, do NOT include _adf_row_id.
 - If the question cannot be answered, return: SELECT 'Question cannot be answered from this table' AS answer;
 
 Table: {table_name}
 Columns:
+- _adf_row_id (INTEGER) — internal row identifier, include for row-level queries
 {column_lines}
 
 Question: {question}
