@@ -1,14 +1,27 @@
 from __future__ import annotations
 
+import json
 import os
-from dataclasses import dataclass
-from typing import Any
+from dataclasses import dataclass, field
+from typing import Any, Iterator
 
 import requests
 
 
 DEFAULT_OLLAMA_MODEL = os.getenv("ADF_OLLAMA_MODEL", "gemma4:e4b")
 DEFAULT_OLLAMA_URL = os.getenv("ADF_OLLAMA_URL", "http://localhost:11434")
+
+# ── Inference defaults ────────────────────────────────────────
+# num_ctx: context window size for KV cache.
+#   gemma4:e4b default is 128 K — allocating that much KV cache for a
+#   ~500-token prompt wastes ~60× memory and makes every decode step slow.
+#   Our longest prompt (answer summary with 8 rows) is well under 1 500 tokens.
+NUM_CTX = 2048
+
+# num_predict: max tokens to generate.
+#   SQL queries: ≤100 tokens.  3-bullet answers: ≤400 tokens.
+NUM_PREDICT_SQL   = 150
+NUM_PREDICT_TEXT  = 512   # schema review, validation, answer summary
 
 
 @dataclass(frozen=True)
@@ -24,24 +37,61 @@ class OllamaStatus:
 class OllamaGemmaClient:
     model: str = DEFAULT_OLLAMA_MODEL
     base_url: str = DEFAULT_OLLAMA_URL
+    num_predict: int = NUM_PREDICT_TEXT
+    num_ctx: int = NUM_CTX
+
+    def _options(self) -> dict[str, Any]:
+        return {
+            "temperature": 0.1,
+            "top_p": 0.9,
+            "num_predict": self.num_predict,
+            "num_ctx": self.num_ctx,
+        }
 
     def generate(self, prompt: str) -> str:
+        """Blocking generation. Returns full response string."""
         response = requests.post(
             f"{self.base_url}/api/generate",
             json={
                 "model": self.model,
                 "prompt": prompt,
                 "stream": False,
-                "options": {
-                    "temperature": 0.1,
-                    "top_p": 0.9,
-                },
+                "options": self._options(),
             },
             timeout=600,
         )
         response.raise_for_status()
         payload: dict[str, Any] = response.json()
         return str(payload.get("response", "")).strip()
+
+    def stream_generate(self, prompt: str) -> Iterator[str]:
+        """Streaming generation. Yields tokens as they arrive.
+
+        Use this in the UI so the user sees output immediately instead of
+        waiting for the full response.  The HTTP connection stays open until
+        the model is done or num_predict is reached.
+        """
+        response = requests.post(
+            f"{self.base_url}/api/generate",
+            json={
+                "model": self.model,
+                "prompt": prompt,
+                "stream": True,
+                "options": self._options(),
+            },
+            stream=True,
+            timeout=600,
+        )
+        response.raise_for_status()
+        for raw_line in response.iter_lines():
+            if not raw_line:
+                continue
+            chunk: dict[str, Any] = json.loads(raw_line)
+            token = chunk.get("response", "")
+            if token:
+                yield token
+            if chunk.get("done"):
+                break
 
 
 def get_ollama_status(base_url: str = DEFAULT_OLLAMA_URL) -> OllamaStatus:
@@ -154,25 +204,25 @@ def build_validation_agent_prompt(
     sample_rows: list[dict[str, Any]],
 ) -> str:
     column_summary = ", ".join(column["name"] for column in columns)
-    row_preview = str(sample_rows[:5])
+    row_preview = str(sample_rows[:3])          # 3 rows is enough context
     warning_text = "\n".join(f"- {w}" for w in warnings) if warnings else "- No warnings found."
     return f"""
-You are a data quality advisor helping a small community organization understand their records.
+You are a data quality advisor. A small community organization imported a CSV.
 
-The system flagged these data quality warnings after importing:
+Warnings:
 {warning_text}
 
-Database columns: {column_summary}
+Columns: {column_summary}
 
-Sample records (first 5 rows):
+Sample records (3 rows):
 {row_preview}
 
 Write exactly 3 bullet points:
-- What each warning likely means for day-to-day service operations
-- Which warning poses the highest risk to client follow-up and why
-- One concrete action the organization can take this week to address the most critical gap
+- What this warning means for day-to-day service operations
+- Which gap poses the highest risk to client follow-up and why
+- One concrete action staff can take this week
 
-Be specific, compassionate, and practical. Avoid technical jargon.
+Be specific and practical. No jargon.
 """.strip()
 
 
@@ -181,25 +231,25 @@ def build_schema_review_prompt(
     sample_rows: list[dict[str, Any]],
 ) -> str:
     column_lines = "\n".join(
-        f"- {col['name']}: {col['sqlite_type']} (nullable={col.get('nullable', True)})"
+        f"- {col['name']}: {col['sqlite_type']}"
         for col in columns
     )
-    row_preview = str(sample_rows[:3])
+    row_preview = str(sample_rows[:2])          # 2 rows is enough to spot type issues
     return f"""
-You are a database design advisor reviewing an automatically inferred schema for a community service organization.
+You are a database design advisor reviewing an auto-inferred schema.
 
-Inferred schema:
+Schema:
 {column_lines}
 
-Sample data:
+Sample data (2 rows):
 {row_preview}
 
 Write exactly 3 bullet points:
-- Flag any columns where the inferred type may be wrong (e.g. ZIP codes or phone numbers stored as INTEGER lose leading zeros)
-- Identify one column whose values suggest a data entry consistency problem
-- Suggest one additional column this organization should track for better reporting outcomes
+- Any columns where the inferred type looks wrong (e.g. ZIP as INTEGER loses leading zeros)
+- One column whose values suggest a data entry consistency problem
+- One additional column this organization should track for better reporting
 
-Be specific and reference the actual column names above.
+Reference actual column names.
 """.strip()
 
 
@@ -209,27 +259,20 @@ def build_answer_summary_prompt(
     rows: list[dict[str, Any]],
     provenance: list[dict[str, Any]],
 ) -> str:
-    preview_rows = rows[:8]
-    preview_provenance = provenance[:8]
+    preview_rows = rows[:5]
+    preview_provenance = provenance[:5]
     return f"""
-You are helping a small community organization audit a database answer.
+You are helping a community organization audit a database answer.
 
-Write a concise, careful explanation in 3 bullets:
-- what the answer says
-- what source evidence supports it
-- one limitation or data quality caveat
+Write exactly 3 bullet points:
+- What the answer says
+- What source evidence supports it
+- One data quality caveat
 
-Do not invent facts. Use only the question, SQL, rows, and provenance below.
+Use only the information below. Do not invent facts.
 
-Question:
-{question}
-
-SQL:
-{sql}
-
-Rows:
-{preview_rows}
-
-Provenance:
-{preview_provenance}
+Question: {question}
+SQL: {sql}
+Rows: {preview_rows}
+Provenance: {preview_provenance}
 """.strip()

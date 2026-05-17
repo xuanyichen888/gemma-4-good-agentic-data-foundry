@@ -16,6 +16,7 @@ if str(SRC) not in sys.path:
 
 from agentic_data_foundry.database import build_sqlite_from_csv, run_sql
 from agentic_data_foundry.llm import (
+    NUM_PREDICT_SQL,
     OllamaGemmaClient,
     build_answer_summary_prompt,
     build_schema_review_prompt,
@@ -136,26 +137,61 @@ html, body, [class*="css"], p, span, div, label, input, textarea, button {
 """, unsafe_allow_html=True)
 
 
-# ── Gemma timeout wrapper ─────────────────────────────────────
-_GEMMA_TIMEOUT = 90  # seconds; enough for gemma4:e4b on typical hardware
-
-def _run_gemma(client: "OllamaGemmaClient", prompt: str) -> str:
-    """Call Gemma with an application-layer timeout separate from the HTTP timeout."""
-    with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
-        future = pool.submit(client.generate, prompt)
-        try:
-            return future.result(timeout=_GEMMA_TIMEOUT)
-        except concurrent.futures.TimeoutError:
-            future.cancel()
-            raise TimeoutError(
-                f"Gemma did not respond within {_GEMMA_TIMEOUT}s. "
-                "Try: check `ollama serve` is running, or select a smaller model."
-            )
+# ── Gemma helpers ─────────────────────────────────────────────
+_BOX_STYLE = (
+    "background:#F0FDF4;border:1px solid #BBF7D0;"
+    "border-left:4px solid #16A34A;border-radius:0 8px 8px 0;"
+    "padding:14px 18px;margin-top:10px;font-size:13.5px;"
+    "line-height:1.75;color:#14532D;white-space:pre-wrap;"
+)
 
 
 def _safe_html(text: str) -> str:
     """Escape LLM output before injecting into unsafe_allow_html blocks."""
     return _html.escape(str(text))
+
+
+def _stream_gemma_box(client: "OllamaGemmaClient", prompt: str) -> str | None:
+    """Stream Gemma output token-by-token into a live placeholder div.
+
+    Returns the full text on success, None on error (error already shown via st).
+    Using streaming means the user sees the first token within ~2s instead of
+    waiting for the entire response — critical for slow local models.
+    """
+    placeholder = st.empty()
+    collected: list[str] = []
+    try:
+        for token in client.stream_generate(prompt):
+            collected.append(token)
+            preview = _safe_html("".join(collected))
+            placeholder.markdown(
+                f'<div style="{_BOX_STYLE}">{preview}▌</div>',
+                unsafe_allow_html=True,
+            )
+        full = "".join(collected).strip()
+        placeholder.markdown(
+            f'<div style="{_BOX_STYLE}">{_safe_html(full)}</div>',
+            unsafe_allow_html=True,
+        )
+        return full
+    except Exception as exc:
+        placeholder.error(f"Gemma error: {exc}")
+        return None
+
+
+def _run_gemma(client: "OllamaGemmaClient", prompt: str) -> str:
+    """Blocking Gemma call with a ThreadPoolExecutor timeout (for SQL paths)."""
+    _TIMEOUT = 300
+    with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
+        future = pool.submit(client.generate, prompt)
+        try:
+            return future.result(timeout=_TIMEOUT)
+        except concurrent.futures.TimeoutError:
+            future.cancel()
+            raise TimeoutError(
+                f"Gemma did not respond within {_TIMEOUT}s. "
+                "Check `ollama serve` or try a smaller model."
+            )
 
 
 # ── Helper: custom metric card ─────────────────────────────────
@@ -383,29 +419,24 @@ with build_tab:
                 '⚡ Agent 1 · Schema Reviewer</div>',
                 unsafe_allow_html=True,
             )
-            if st.button("Run schema review", use_container_width=True):
+            schema_btn = st.button("Run schema review", use_container_width=True)
+            schema_slot = st.empty()
+            if schema_btn:
                 sample_rows = run_sql(db_path, f"SELECT * FROM {result['table_name']} LIMIT 5")
-                with st.spinner(f"{selected_model} reviewing schema… (up to {_GEMMA_TIMEOUT}s)"):
-                    try:
-                        review = _run_gemma(
-                            OllamaGemmaClient(model=selected_model),
-                            build_schema_review_prompt(result["columns"], sample_rows),
-                        )
-                        st.session_state["schema_review"] = review
-                    except TimeoutError as e:
-                        st.warning(str(e))
-                    except Exception as e:
-                        st.error(f"Schema review failed: {e}")
-
-        if st.session_state.get("schema_review"):
-            st.markdown(
-                f'<div style="background:#F0FDF4;border:1px solid #BBF7D0;'
-                f'border-left:4px solid #16A34A;border-radius:0 8px 8px 0;'
-                f'padding:14px 18px;margin-top:10px;font-size:13.5px;'
-                f'line-height:1.75;color:#14532D;white-space:pre-wrap;">'
-                f'{_safe_html(st.session_state["schema_review"])}</div>',
-                unsafe_allow_html=True,
-            )
+                st.caption("Streaming — first tokens appear in a few seconds…")
+                with schema_slot:
+                    result_text = _stream_gemma_box(
+                        OllamaGemmaClient(model=selected_model),
+                        build_schema_review_prompt(result["columns"], sample_rows),
+                    )
+                if result_text:
+                    st.session_state["schema_review"] = result_text
+            elif st.session_state.get("schema_review"):
+                schema_slot.markdown(
+                    f'<div style="{_BOX_STYLE}">'
+                    f'{_safe_html(st.session_state["schema_review"])}</div>',
+                    unsafe_allow_html=True,
+                )
 
     with right:
         section_heading("Validation Report")
@@ -424,29 +455,24 @@ with build_tab:
                 '⚡ Agent 2 · Validation Analyst</div>',
                 unsafe_allow_html=True,
             )
-            if st.button("Explain warnings with Gemma", use_container_width=True):
+            val_btn = st.button("Explain warnings with Gemma", use_container_width=True)
+            val_slot = st.empty()
+            if val_btn:
                 sample_rows = run_sql(db_path, f"SELECT * FROM {result['table_name']} LIMIT 5")
-                with st.spinner(f"{selected_model} analysing data quality… (up to {_GEMMA_TIMEOUT}s)"):
-                    try:
-                        analysis = _run_gemma(
-                            OllamaGemmaClient(model=selected_model),
-                            build_validation_agent_prompt(result["validation"], result["columns"], sample_rows),
-                        )
-                        st.session_state["validation_analysis"] = analysis
-                    except TimeoutError as e:
-                        st.warning(str(e))
-                    except Exception as e:
-                        st.error(f"Validation analysis failed: {e}")
-
-        if st.session_state.get("validation_analysis"):
-            st.markdown(
-                f'<div style="background:#F0FDF4;border:1px solid #BBF7D0;'
-                f'border-left:4px solid #16A34A;border-radius:0 8px 8px 0;'
-                f'padding:14px 18px;margin-top:10px;font-size:13.5px;'
-                f'line-height:1.75;color:#14532D;white-space:pre-wrap;">'
-                f'{_safe_html(st.session_state["validation_analysis"])}</div>',
-                unsafe_allow_html=True,
-            )
+                st.caption("Streaming — first tokens appear in a few seconds…")
+                with val_slot:
+                    result_text = _stream_gemma_box(
+                        OllamaGemmaClient(model=selected_model),
+                        build_validation_agent_prompt(result["validation"], result["columns"], sample_rows),
+                    )
+                if result_text:
+                    st.session_state["validation_analysis"] = result_text
+            elif st.session_state.get("validation_analysis"):
+                val_slot.markdown(
+                    f'<div style="{_BOX_STYLE}">'
+                    f'{_safe_html(st.session_state["validation_analysis"])}</div>',
+                    unsafe_allow_html=True,
+                )
 
     st.divider()
     section_heading("Database Preview — first 20 rows")
@@ -476,7 +502,7 @@ with ask_tab:
             if not ollama_status.available:
                 st.error("Ollama unreachable. Start Ollama or uncheck Gemma generation.")
                 st.stop()
-            client = OllamaGemmaClient(model=selected_model)
+            client = OllamaGemmaClient(model=selected_model, num_predict=NUM_PREDICT_SQL)
             try:
                 with st.spinner(f"{selected_model} generating SQL with auto-repair… (up to {_GEMMA_TIMEOUT}s per step)"):
                     with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
@@ -485,10 +511,10 @@ with ask_tab:
                             db_path, result["table_name"], result["columns"], question, client,
                         )
                         try:
-                            answer, repair_count = future.result(timeout=_GEMMA_TIMEOUT * 3)
+                            answer, repair_count = future.result(timeout=900)
                         except concurrent.futures.TimeoutError:
                             st.warning(
-                                f"Gemma did not respond within {_GEMMA_TIMEOUT * 3}s. "
+                                "Gemma did not respond within 900s. "
                                 "Check Ollama or try a smaller model."
                             )
                             st.stop()
@@ -509,16 +535,13 @@ with ask_tab:
 
         if generate_summary and ollama_status.available:
             ans = st.session_state["last_answer"]
-            with st.spinner(f"{selected_model} explaining the answer… (up to {_GEMMA_TIMEOUT}s)"):
-                try:
-                    st.session_state["last_summary"] = _run_gemma(
-                        OllamaGemmaClient(model=selected_model),
-                        build_answer_summary_prompt(ans.question, ans.sql, ans.rows, ans.provenance),
-                    )
-                except TimeoutError as e:
-                    st.warning(str(e))
-                except Exception as e:
-                    st.error(f"Answer explanation failed: {e}")
+            st.caption("Streaming explanation — first tokens appear in a few seconds…")
+            summary_text = _stream_gemma_box(
+                OllamaGemmaClient(model=selected_model),
+                build_answer_summary_prompt(ans.question, ans.sql, ans.rows, ans.provenance),
+            )
+            if summary_text:
+                st.session_state["last_summary"] = summary_text
 
     answer = st.session_state.get("last_answer")
     if answer:
