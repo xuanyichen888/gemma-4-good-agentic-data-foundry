@@ -37,7 +37,7 @@ class OllamaGemmaClient:
                     "top_p": 0.9,
                 },
             },
-            timeout=120,
+            timeout=600,
         )
         response.raise_for_status()
         payload: dict[str, Any] = response.json()
