@@ -47,45 +47,7 @@ html, body, [class*="css"] {
 /* Background */
 .stApp { background: #FFFBF5; }
 
-/* ── Animations ── */
-@keyframes fadeInUp {
-    from { opacity: 0; transform: translateY(24px); }
-    to   { opacity: 1; transform: translateY(0); }
-}
-@keyframes floatY {
-    0%, 100% { transform: translateY(0); }
-    50%       { transform: translateY(-10px); }
-}
-@keyframes spin-slow {
-    from { transform: rotate(0deg); }
-    to   { transform: rotate(360deg); }
-}
-@keyframes pulse-ring {
-    0%   { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(45,153,102,0.4); }
-    70%  { transform: scale(1);    box-shadow: 0 0 0 10px rgba(45,153,102,0); }
-    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(45,153,102,0); }
-}
-@keyframes shimmer {
-    0%   { background-position: -400px 0; }
-    100% { background-position: 400px 0; }
-}
-
-/* ── Hero ── */
-.hero-wrap {
-    background: linear-gradient(135deg, #F0FDF4 0%, #FFF7ED 50%, #ECFDF5 100%);
-    border: 1px solid #D1FAE5;
-    border-radius: 20px;
-    padding: 0;
-    margin-bottom: 28px;
-    overflow: hidden;
-    display: flex;
-    align-items: stretch;
-    animation: fadeInUp 0.6s ease both;
-}
-.hero-left {
-    flex: 1;
-    padding: 40px 44px;
-}
+/* ── Hero badge ── */
 .hero-badge {
     display: inline-flex;
     align-items: center;
@@ -98,48 +60,7 @@ html, body, [class*="css"] {
     text-transform: uppercase;
     border-radius: 999px;
     padding: 5px 14px;
-    margin-bottom: 18px;
-}
-.hero-title {
-    font-size: 2.2rem;
-    font-weight: 800;
-    color: #14532D;
-    line-height: 1.2;
-    margin: 0 0 12px;
-}
-.hero-title span { color: #F97316; }
-.hero-sub {
-    font-size: 1rem;
-    color: #4B5563;
-    line-height: 1.65;
-    max-width: 480px;
-    margin: 0 0 24px;
-}
-.hero-pills {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-}
-.hero-pill {
-    background: white;
-    border: 1px solid #D1FAE5;
-    border-radius: 999px;
-    padding: 6px 16px;
-    font-size: 0.82rem;
-    font-weight: 600;
-    color: #1F7A4A;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-}
-.hero-right {
-    width: 320px;
-    background: linear-gradient(135deg, #16A34A 0%, #15803D 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 30px;
-    flex-shrink: 0;
+    margin-bottom: 8px;
 }
 
 /* ── Metric cards ── */
@@ -168,7 +89,6 @@ html, body, [class*="css"] {
     padding: 24px 26px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04);
     margin-bottom: 20px;
-    animation: fadeInUp 0.5s ease both;
 }
 .section-label {
     font-size: 0.7rem;
@@ -199,7 +119,6 @@ html, body, [class*="css"] {
     width: 7px; height: 7px;
     border-radius: 50%;
     background: #F97316;
-    animation: pulse-ring 2s infinite;
 }
 
 /* ── Gemma output ── */
@@ -213,7 +132,6 @@ html, body, [class*="css"] {
     line-height: 1.75;
     font-size: 0.9rem;
     color: #1C3829;
-    animation: fadeInUp 0.4s ease both;
 }
 .gemma-box strong { color: #15803D; }
 
@@ -262,50 +180,15 @@ html, body, [class*="css"] {
     border: 1px solid #D1FAE5 !important;
 }
 
-/* ── Agent pipeline in sidebar ── */
-.pipeline-step {
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-    padding: 8px 0;
-}
-.pipeline-num {
-    width: 24px; height: 24px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #16A34A, #15803D);
-    color: white;
-    font-size: 0.7rem;
-    font-weight: 800;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-}
-.pipeline-text {
-    font-size: 0.78rem;
-    color: #374151;
-    font-weight: 500;
-    line-height: 1.5;
-    padding-top: 3px;
-}
-.pipeline-connector {
-    width: 2px;
-    height: 14px;
-    background: #D1FAE5;
-    margin-left: 11px;
-}
-
 /* ── Empty states ── */
 .empty-state {
     text-align: center;
     padding: 56px 20px;
-    animation: fadeInUp 0.5s ease both;
 }
 .empty-icon {
     font-size: 3.5rem;
     margin-bottom: 14px;
     display: block;
-    animation: floatY 3s ease-in-out infinite;
 }
 .empty-title {
     font-size: 1.1rem;
@@ -391,99 +274,28 @@ with st.sidebar:
 
     # Agent pipeline
     st.markdown('<div class="sidebar-label">Agent Pipeline</div>', unsafe_allow_html=True)
-    st.markdown("""
-    <div>
-      <div class="pipeline-step">
-        <div class="pipeline-num">1</div>
-        <div class="pipeline-text"><b>Schema Reviewer</b><br>Audits inferred column types</div>
-      </div>
-      <div class="pipeline-connector"></div>
-      <div class="pipeline-step">
-        <div class="pipeline-num">2</div>
-        <div class="pipeline-text"><b>Validation Analyst</b><br>Explains data quality gaps</div>
-      </div>
-      <div class="pipeline-connector"></div>
-      <div class="pipeline-step">
-        <div class="pipeline-num">3</div>
-        <div class="pipeline-text"><b>SQL Generator</b><br>NL → SQL with auto-repair</div>
-      </div>
-      <div class="pipeline-connector"></div>
-      <div class="pipeline-step">
-        <div class="pipeline-num">4</div>
-        <div class="pipeline-text"><b>Answer Explainer</b><br>Summarises results + caveats</div>
-      </div>
-    </div>
-    """, unsafe_allow_html=True)
+    st.markdown(
+        "**1** Schema Reviewer — audits column types  \n"
+        "**2** Validation Analyst — explains data gaps  \n"
+        "**3** SQL Generator — NL → SQL + auto-repair  \n"
+        "**4** Answer Explainer — summarises results"
+    )
 
 # ── Hero ──────────────────────────────────────────────────────
-st.markdown("""
-<div class="hero-wrap">
-  <div class="hero-left">
-    <div class="hero-badge">🌱 Gemma 4 Good Hackathon · Digital Equity & Safety</div>
-    <div class="hero-title">Turn messy records into<br><span>trusted databases</span></div>
-    <div class="hero-sub">
-      Small community organizations track hundreds of families in spreadsheets—
-      but lack a data engineer. Agentic Data Foundry uses local Gemma&nbsp;4 agents
-      to build a clean, queryable database with source evidence for every answer.
-    </div>
-    <div class="hero-pills">
-      <span class="hero-pill">🔒 Data stays local</span>
-      <span class="hero-pill">🤖 4 Gemma 4 agents</span>
-      <span class="hero-pill">📎 Row-level provenance</span>
-      <span class="hero-pill">🛡 SQL safety validation</span>
-    </div>
-  </div>
-  <div class="hero-right">
-    <svg width="240" height="210" viewBox="0 0 240 210" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <!-- Floating papers (messy data) -->
-      <rect x="8" y="30" width="52" height="38" rx="6" fill="white" opacity="0.25" transform="rotate(-12 8 30)"/>
-      <rect x="18" y="34" width="32" height="4" rx="2" fill="white" opacity="0.5" transform="rotate(-12 8 30)"/>
-      <rect x="18" y="42" width="22" height="4" rx="2" fill="white" opacity="0.4" transform="rotate(-12 8 30)"/>
-      <rect x="18" y="50" width="28" height="4" rx="2" fill="white" opacity="0.3" transform="rotate(-12 8 30)"/>
-
-      <rect x="2" y="80" width="52" height="38" rx="6" fill="white" opacity="0.2" transform="rotate(8 2 80)"/>
-      <rect x="12" y="84" width="32" height="4" rx="2" fill="white" opacity="0.4" transform="rotate(8 2 80)"/>
-      <rect x="12" y="92" width="18" height="4" rx="2" fill="white" opacity="0.3" transform="rotate(8 2 80)"/>
-
-      <!-- Arrow -->
-      <path d="M 75 105 L 105 105" stroke="white" stroke-width="2.5" stroke-dasharray="4 3" opacity="0.6"/>
-      <polygon points="105,100 115,105 105,110" fill="white" opacity="0.8"/>
-
-      <!-- Database cylinder -->
-      <ellipse cx="158" cy="78" rx="46" ry="14" fill="white" opacity="0.25"/>
-      <rect x="112" y="78" width="92" height="62" fill="white" opacity="0.15"/>
-      <ellipse cx="158" cy="140" rx="46" ry="14" fill="white" opacity="0.2"/>
-      <ellipse cx="158" cy="78" rx="46" ry="14" fill="white" opacity="0.9"/>
-      <rect x="112" y="78" width="92" height="62" fill="white" opacity="0.15"/>
-      <ellipse cx="158" cy="102" rx="46" ry="14" fill="white" opacity="0.25"/>
-      <ellipse cx="158" cy="126" rx="46" ry="14" fill="white" opacity="0.3"/>
-      <ellipse cx="158" cy="140" rx="46" ry="14" fill="white" opacity="0.85"/>
-      <!-- DB stripes -->
-      <rect x="126" y="84" width="64" height="3" rx="1.5" fill="#16A34A" opacity="0.4"/>
-      <rect x="126" y="92" width="48" height="3" rx="1.5" fill="#16A34A" opacity="0.3"/>
-      <rect x="126" y="100" width="56" height="3" rx="1.5" fill="#16A34A" opacity="0.25"/>
-
-      <!-- Checkmark on top -->
-      <circle cx="158" cy="78" r="18" fill="#16A34A"/>
-      <polyline points="149,78 155,84 167,72" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-
-      <!-- People icons -->
-      <circle cx="34" cy="168" r="12" fill="white" opacity="0.9"/>
-      <rect x="22" y="182" width="24" height="20" rx="8" fill="white" opacity="0.7"/>
-
-      <circle cx="72" cy="165" r="10" fill="white" opacity="0.8"/>
-      <rect x="61" y="177" width="22" height="18" rx="7" fill="white" opacity="0.6"/>
-
-      <circle cx="108" cy="170" r="11" fill="white" opacity="0.85"/>
-      <rect x="97" y="183" width="22" height="18" rx="7" fill="white" opacity="0.65"/>
-
-      <!-- Connecting lines from people to DB -->
-      <path d="M 34 156 Q 80 145 112 130" stroke="white" stroke-width="1.5" opacity="0.35" stroke-dasharray="3 3"/>
-      <path d="M 72 155 Q 110 145 112 130" stroke="white" stroke-width="1.5" opacity="0.3" stroke-dasharray="3 3"/>
-    </svg>
-  </div>
-</div>
-""", unsafe_allow_html=True)
+st.markdown(
+    '<div class="hero-badge" style="display:inline-block;margin-bottom:10px">'
+    '🌱 Gemma 4 Good Hackathon · Digital Equity &amp; Safety'
+    '</div>',
+    unsafe_allow_html=True,
+)
+st.markdown("## Turn messy records into trusted databases")
+st.markdown(
+    "Small community organizations track hundreds of families in spreadsheets — "
+    "but lack a data engineer. **Agentic Data Foundry** uses local Gemma 4 agents "
+    "to build a clean, queryable database with source evidence for every answer."
+)
+st.markdown("🔒 Data stays local &nbsp;·&nbsp; 🤖 4 Gemma 4 agents &nbsp;·&nbsp; 📎 Row-level provenance &nbsp;·&nbsp; 🛡 SQL safety validation", unsafe_allow_html=True)
+st.markdown("---")
 
 # ── Gate ──────────────────────────────────────────────────────
 result = st.session_state.get("build_result")
