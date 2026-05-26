@@ -1,6 +1,30 @@
 # Agentic Data Foundry
 
-**Gemma 4 Good Hackathon · Digital Equity and Inclusivity · Safety and Trust**
+![Python](https://img.shields.io/badge/Python-3.10+-blue?logo=python&logoColor=white)
+![Gemma 4](https://img.shields.io/badge/Gemma_4-Local_Inference-green?logo=google&logoColor=white)
+![Ollama](https://img.shields.io/badge/Powered_by-Ollama-black?logo=ollama&logoColor=white)
+![Streamlit](https://img.shields.io/badge/UI-Streamlit-FF4B4B?logo=streamlit&logoColor=white)
+![License](https://img.shields.io/badge/License-MIT-yellow)
+![Hackathon](https://img.shields.io/badge/Gemma_4_Good_Hackathon-2026-blueviolet)
+
+**Turn a messy CSV into a trusted, SQL-queryable database — using 4 local Gemma 4 agents. No cloud. No data leaves your machine.**
+
+> 🏆 Submitted to the [Gemma 4 Good Hackathon](https://www.kaggle.com/competitions/gemma-4-good-hackathon) · Ollama Track · Impact Track
+
+---
+
+## Key highlights
+
+| | |
+|---|---|
+| 🤖 **4 specialized Gemma 4 agents** | Schema review, validation analysis, SQL generation, answer explanation |
+| 🔒 **6-rule SQL safety validator** | SELECT-only, no DROP/DELETE, read-only OS connection — enforced in code, not prompt |
+| ⚡ **60× faster local inference** | `num_ctx=2048` vs Gemma 4's 128K default — cuts KV-cache memory by ~62× |
+| 🔁 **Self-repair loop** | Broken SQL sent back to Gemma for automatic correction, up to 2 retries |
+| 📍 **Row-level provenance** | Every answer links to the exact source CSV line number |
+| 🚫 **Zero external API calls** | All inference via Ollama on local hardware |
+
+---
 
 Small nonprofits, clinics, and community organizations collect critical records in spreadsheets and forms — but they rarely have a data engineer. Agentic Data Foundry uses a local-first Gemma 4 agent pipeline to turn messy CSV files into a trusted, queryable SQLite database with source provenance and natural-language access.
 
